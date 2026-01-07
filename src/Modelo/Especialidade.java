@@ -1,0 +1,32 @@
+package Modelo;
+
+public class Especialidade {
+    private String codigo;
+    private String nome;
+
+    public Especialidade(String codigo, String nome) {
+        this.codigo = codigo;
+        this.nome = nome;
+    }
+
+    public String getCodigo() {
+        return codigo;
+    }
+
+    public void setCodigo(String codigo) {
+        this.codigo = codigo;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    @Override
+    public String toString () {
+        return "Codigo: " + codigo + " - Nome: " + nome;
+    }
+}

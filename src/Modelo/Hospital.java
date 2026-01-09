@@ -10,22 +10,22 @@ public class Hospital {
     private RelogioHospital relogio;
 
     // Array de médicos
-//    private Medico[] medicos;
-//    private int totalMedicos;
+    private Medico[] medicos;
+    private int totalMedicos;
 
-    // Array de pacientes
-//    private Paciente[] pacientes;
-//    private int totalPacientes;
+    // Array de utentes
+    private Utente[] utentes;
+    private int totalUtentes;
 
     /**
      * Construtor do hospital.
      */
-//    public Hospital(int maxMedicos, int maxPacientes) {
+//    public Hospital(int maxMedicos, int maxUtentes) {
 //        relogio = new RelogioHospital();
 //        medicos = new Medico[maxMedicos];
-//        pacientes = new Paciente[maxPacientes];
+//        utentes = new Utente[maxUtentes];
 //        totalMedicos = 0;
-//        totalPacientes = 0;
+//        totalUtentes = 0;
 //    }
 
     // Adiciona um médico ao hospital

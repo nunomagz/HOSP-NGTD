@@ -27,6 +27,6 @@ public class Especialidade {
 
     @Override
     public String toString () {
-        return "Codigo: " + codigo + " - Nome: " + nome;
+        return "Código: " + codigo + " | Nome: " + nome;
     }
 }

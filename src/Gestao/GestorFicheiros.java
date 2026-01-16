@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
  *   (porque médicos/sintomas dependem das especialidades).
  * - Se uma linha vier inválida, é ignorada e o programa não crasha.
  */
-public class DataIO {
+public class GestorFicheiros {
 
     // Constrói o caminho completo: "Dados/" + "especialidades.txt"
     private String fullPath(String fileName) {

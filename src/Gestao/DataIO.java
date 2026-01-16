@@ -1,4 +1,4 @@
-package Controlador;
+package Gestao;
 
 import Configurações.Configurações;
 import Modelo.Especialidade;

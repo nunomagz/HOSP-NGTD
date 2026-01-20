@@ -20,13 +20,13 @@ public class Hospital {
     /**
      * Construtor do hospital.
      */
-//    public Hospital(int maxMedicos, int maxUtentes) {
-//        relogio = new RelogioHospital();
+    public Hospital(/*int maxMedicos, int maxUtentes*/) {
+        relogio = new RelogioHospital();
 //        medicos = new Medico[maxMedicos];
 //        utentes = new Utente[maxUtentes];
 //        totalMedicos = 0;
 //        totalUtentes = 0;
-//    }
+    }
 
     // Adiciona um médico ao hospital
 //    public void adicionarMedico(Medico m) {
@@ -74,9 +74,9 @@ public class Hospital {
 //    }
 
     // Mostra a hora atual do sistema
-    public void mostrarHora() {
-        System.out.println(
-                "Dia " + relogio.getDiaAtual() + " | Hora " + relogio.getHoraAtual()
-        );
-    }
+//    public void mostrarHora() {
+//        System.out.println(
+//                "Dia " + relogio.getDiaAtual() + " | Hora " + relogio.getHoraAtual()
+//        );
+//    }
 }

@@ -4,6 +4,7 @@ import Configurações.Configurações;
 import Gestao.GestorFicheiros;
 import Gestao.GestãoHOSP;
 import Modelo.Hospital;
+import Modelo.RelogioHospital;
 import java.io.IOException;
 import java.util.Scanner;
 
@@ -12,6 +13,7 @@ public class Menu {
     private GestorFicheiros dataIo;
     private Hospital hospital;
     private Scanner scanner;
+    private RelogioHospital relogio;
 
 
     public Menu() {
@@ -19,6 +21,7 @@ public class Menu {
         this.dataIo = new GestorFicheiros();
         this.hospital = new Hospital();
         this.scanner = new Scanner(System.in);
+        this.relogio = new RelogioHospital();
     }
 
     public void Iniciar(){
@@ -508,13 +511,13 @@ public class Menu {
             System.out.println("║                  FUNCIONAMENTO DO HOSPITAL                   ║");
             System.out.println("╠══════════════════════════════════════════════════════════════╣");
             System.out.println("║  1. Realizar Triagem (Adicionar Utente)                      ║");
-            System.out.println("║  2. Avançar Tempo (30 min)                                   ║");
+            System.out.println("║  2. Avançar Tempo                                            ║");
             System.out.println("║  3. Visualizar Estado das Salas de Espera                    ║");
             System.out.println("║  0. Voltar                                                   ║");
             System.out.println("╚══════════════════════════════════════════════════════════════╝");
 
             // Mostra a hora atual se o Hospital tiver essa função implementada pelo Aluno 3
-            // System.out.println("Hora Atual: " + hospital.getHoraAtual());
+            System.out.println("Dia " + relogio.getDiaAtual() + " | Hora " + relogio.getHoraAtual());
 
             opcao = lerInteiro("Opção: ");
 
@@ -569,11 +572,8 @@ public class Menu {
     private void avancarTempo() {
         System.out.println("\n--- A AVANÇAR O TEMPO ---");
 
-        // Exemplo de integração com Aluno 3:
-        // List<String> notificacoes = hospital.avancarTempo(30);
-        // for (String msg : notificacoes) {
-        //     System.out.println("🔔 " + msg);
-        // }
+        relogio.avancarTempo();
+        System.out.println("Dia: " + relogio.getDiaAtual() + " | Hora Atual: " + relogio.getHoraAtual());
 
         System.out.println("O tempo avançou. Médicos atenderam doentes e altas foram dadas.");
         System.out.println("(Nota: As notificações aparecerão aqui quando o Aluno 3 terminar a lógica)");

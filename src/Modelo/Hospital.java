@@ -10,33 +10,33 @@ public class Hospital {
     private RelogioHospital relogio;
 
     // Array de médicos
-//    private Medico[] medicos;
-//    private int totalMedicos;
+    private Medico[] medicos;
+    private int totalMedicos;
 
-    // Array de pacientes
-//    private Paciente[] pacientes;
-//    private int totalPacientes;
+    // Array de utentes
+    private Utente[] utentes;
+    private int totalUtentes;
 
     /**
      * Construtor do hospital.
      */
-//    public Hospital(int maxMedicos, int maxPacientes) {
-//        relogio = new RelogioHospital();
+    public Hospital(/*int maxMedicos, int maxUtentes*/) {
+        relogio = new RelogioHospital();
 //        medicos = new Medico[maxMedicos];
-//        pacientes = new Paciente[maxPacientes];
+//        utentes = new Utente[maxUtentes];
 //        totalMedicos = 0;
-//        totalPacientes = 0;
-//    }
+//        totalUtentes = 0;
+    }
 
     // Adiciona um médico ao hospital
-//    public void adicionarMedico(Medico m) {
-//        medicos[totalMedicos++] = m;
-//    }
+    public void adicionarMedico(Medico m) {
+        medicos[totalMedicos++] = m;
+    }
 
-    // Adiciona um paciente à sala de espera
-//    public void adicionarPaciente(Paciente p) {
-//        pacientes[totalPacientes++] = p;
-//    }
+    // Adiciona um utente à sala de espera
+    public void adicionarUtente(Utente u) {
+        utentes[totalUtentes++] = u;
+    }
 
     /**
      * Avança o tempo e processa eventos associados.
@@ -74,9 +74,9 @@ public class Hospital {
 //    }
 
     // Mostra a hora atual do sistema
-    public void mostrarHora() {
-        System.out.println(
-                "Dia " + relogio.getDiaAtual() + " | Hora " + relogio.getHoraAtual()
-        );
-    }
+//    public void mostrarHora() {
+//        System.out.println(
+//                "Dia " + relogio.getDiaAtual() + " | Hora " + relogio.getHoraAtual()
+//        );
+//    }
 }

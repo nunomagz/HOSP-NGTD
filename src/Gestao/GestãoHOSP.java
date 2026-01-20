@@ -1,0 +1,423 @@
+package Gestao;
+
+                                //linha 178 e 179 importantes
+
+import Modelo.Especialidade;
+import Modelo.Medico;
+import Modelo.Sintoma;
+import Modelo.Utente;
+
+/**
+ * Classe de gestão dos dados do hospital.
+ * Guarda tudo em ARRAYS + contadores, sem ArrayList.
+ *
+ * Aqui ficam os CRUDs (Create/Read/Update/Delete) para:
+ * - Especialidades
+ * - Médicos
+ * - Sintomas
+ * - Utentes
+ */
+public class GestãoHOSP {
+
+    // "BASE DE DADOS" EM MEMÓRIA
+
+    // Arrays + contadores (nX diz quantos elementos realmente existem no array)
+    private Especialidade[] especialidades = new Especialidade[10];
+    private int nEspecialidades = 0;
+
+    private Medico[] medicos = new Medico[10];
+    private int nMedicos = 0;
+
+    private Sintoma[] sintomas = new Sintoma[80];
+    private int nSintomas = 0;
+
+    // Utentes são "ordem de chegada" (contador automático)
+    private Utente[] utentes = new Utente[50];
+    private int nUtentes = 0;
+    private int proximoNumeroUtente = 1;
+
+    // GETTERS (para DataIO e Menu
+    public int getNEspecialidades() { return nEspecialidades; }
+    public Especialidade getEspecialidadeAt(int i) {
+        return (i < 0 || i >= nEspecialidades) ? null : especialidades[i];
+    }
+
+    public int getNMedicos() { return nMedicos; }
+    public Medico getMedicoAt(int i) {
+        return (i < 0 || i >= nMedicos) ? null : medicos[i];
+    }
+
+    public int getNSintomas() { return nSintomas; }
+    public Sintoma getSintomaAt(int i) {
+        return (i < 0 || i >= nSintomas) ? null : sintomas[i];
+    }
+
+    public int getNUtentes() { return nUtentes; }
+    public Utente getUtenteAt(int i) {
+        return (i < 0 || i >= nUtentes) ? null : utentes[i];
+    }
+
+    // CRUD ESPECIALIDADE
+
+    /**
+     * CREATE: adiciona uma especialidade.
+     * Regras:
+     * - código e nome não vazios
+     * - código único
+     */
+    public boolean adicionarEspecialidade(String codigo, String nome) {
+        if (codigo == null || codigo.trim().isEmpty()) return false;
+        if (nome == null || nome.trim().isEmpty()) return false;
+
+        // impedir duplicados
+        if (procurarEspecialidadePorCodigo(codigo) != null) return false;
+
+        // se for preciso, aumenta capacidade do array
+        ensureCapEspecialidades();
+
+        especialidades[nEspecialidades++] =
+                new Especialidade(codigo.trim().toUpperCase(), nome.trim());
+        return true;
+    }
+
+    /**
+     * READ: procurar especialidade por código.
+     */
+    public Especialidade procurarEspecialidadePorCodigo(String codigo) {
+        int idx = indexEspecialidade(codigo);
+        return (idx == -1) ? null : especialidades[idx];
+    }
+
+    /**
+     * UPDATE: alterar código e/ou nome da especialidade.
+     * - novoCódigo só pode ser usado se não existir noutra especialidade
+     * - campos vazios -> não atualiza
+     */
+    public boolean atualizarEspecialidade(String codigoAtual, String novoCodigo, String novoNome) {
+        int idx = indexEspecialidade(codigoAtual);
+        if (idx == -1) return false;
+
+        if (novoCodigo != null && !novoCodigo.trim().isEmpty()) {
+            int idxNovo = indexEspecialidade(novoCodigo);
+            if (idxNovo != -1 && idxNovo != idx) return false; // duplicado
+            especialidades[idx].setCodigo(novoCodigo.trim().toUpperCase());
+        }
+
+        if (novoNome != null && !novoNome.trim().isEmpty()) {
+            especialidades[idx].setNome(novoNome.trim());
+        }
+
+        return true;
+    }
+
+    /**
+     * DELETE: remove especialidade por código.
+     * Faz SHIFT para não deixar buracos no array.
+     *
+     * Nota: dá para reforçar regra (não remover se estiver usada por médicos/sintomas),
+     * mas não é obrigatório para o CRUD base.
+     */
+    public boolean removerEspecialidade(String codigo) {
+        int idx = indexEspecialidade(codigo);
+        if (idx == -1) return false;
+
+        for (int i = idx; i < nEspecialidades - 1; i++) {
+            especialidades[i] = especialidades[i + 1];
+        }
+        especialidades[nEspecialidades - 1] = null;
+        nEspecialidades--;
+        return true;
+    }
+
+    /**
+     * Função auxiliar: devolve o índice da especialidade no array.
+     */
+    private int indexEspecialidade(String codigo) {
+        if (codigo == null) return -1;
+        String c = codigo.trim();
+        for (int i = 0; i < nEspecialidades; i++) {
+            if (especialidades[i].getCodigo().equalsIgnoreCase(c)) return i;
+        }
+        return -1;
+    }
+
+    /**
+     * Aumenta capacidade do array quando está cheio (duplicando o tamanho).
+     */
+    private void ensureCapEspecialidades() {
+        if (nEspecialidades < especialidades.length) return;
+
+        Especialidade[] novo = new Especialidade[especialidades.length * 2];
+        for (int i = 0; i < especialidades.length; i++) {
+            novo[i] = especialidades[i];
+        }
+        especialidades = novo;
+    }
+
+    // CRUD MÉDICO
+
+    /**
+     * CREATE: adiciona médico.
+     * Regras:
+     * - nome não vazio
+     * - especialidade tem de existir (validação importante!)
+     * - não permitir médico duplicado por nome (não há ID no modelo)
+     */
+    public boolean adicionarMedico(String nome, String espCodigo, int entrada, int saida, int salario) {
+        if (nome == null || nome.trim().isEmpty()) return false;
+        if (espCodigo == null || espCodigo.trim().isEmpty()) return false;
+
+        //  validação: especialidade tem de existir
+        if (procurarEspecialidadePorCodigo(espCodigo) == null) return false;
+
+        // impedir duplicados por nome
+        if (procurarMedicoPorNome(nome) != null) return false;
+
+        ensureCapMedicos();
+
+        // Nota: no vosso modelo Medico, o construtor ignora o parâmetro "disponivel"
+        // e faz this.disponivel = false; (isso é um bug/decisão vossa)
+        medicos[nMedicos++] = new Medico(
+                nome.trim(),
+                espCodigo.trim().toUpperCase(),
+                entrada,
+                saida,
+                salario,
+                false,
+                0
+        );
+
+        return true;
+    }
+
+    /**
+     * READ: procurar médico por nome.
+     */
+    public Medico procurarMedicoPorNome(String nome) {
+        int idx = indexMedico(nome);
+        return (idx == -1) ? null : medicos[idx];
+    }
+
+    /**
+     * UPDATE: atualizar campos do médico.
+     * - se novaEsp existir, tem de existir como especialidade
+     * - valores "sentinela" (0 ou -1) -> não atualiza
+     */
+    public boolean atualizarMedico(String nome, String novaEsp, int novaEntrada, int novaSaida, int novoSalario) {
+        int idx = indexMedico(nome);
+        if (idx == -1) return false;
+
+        if (novaEsp != null && !novaEsp.trim().isEmpty()) {
+            if (procurarEspecialidadePorCodigo(novaEsp) == null) return false;
+            medicos[idx].setEspecialidade(novaEsp.trim().toUpperCase());
+        }
+
+        if (novaEntrada > 0) medicos[idx].setHoraEntrada(novaEntrada);
+        if (novaSaida > 0) medicos[idx].setHoraSaida(novaSaida);
+        if (novoSalario >= 0) medicos[idx].setSalario(novoSalario);
+
+        return true;
+    }
+
+    /**
+     * DELETE: remover médico por nome.
+     * Faz SHIFT no array.
+     */
+    public boolean removerMedico(String nome) {
+        int idx = indexMedico(nome);
+        if (idx == -1) return false;
+
+        for (int i = idx; i < nMedicos - 1; i++) {
+            medicos[i] = medicos[i + 1];
+        }
+        medicos[nMedicos - 1] = null;
+        nMedicos--;
+        return true;
+    }
+
+    private int indexMedico(String nome) {
+        if (nome == null) return -1;
+        String n = nome.trim();
+        for (int i = 0; i < nMedicos; i++) {
+            if (medicos[i].getNome().equalsIgnoreCase(n)) return i;
+        }
+        return -1;
+    }
+
+    private void ensureCapMedicos() {
+        if (nMedicos < medicos.length) return;
+
+        Medico[] novo = new Medico[medicos.length * 2];
+        for (int i = 0; i < medicos.length; i++) {
+            novo[i] = medicos[i];
+        }
+        medicos = novo;
+    }
+
+    // CRUD SINTOMA
+
+    /**
+     * CREATE: adicionar sintoma.
+     * Regras:
+     * - nome e nível não vazios
+     * - tem de ter pelo menos 1 especialidade associada
+     * - cada código associado tem de existir no array de especialidades
+     */
+    public boolean adicionarSintoma(String nome, String nivel, String[] codigosEspecialidade) {
+        if (nome == null || nome.trim().isEmpty()) return false;
+        if (nivel == null || nivel.trim().isEmpty()) return false;
+
+        if (codigosEspecialidade == null || codigosEspecialidade.length == 0) return false;
+
+        //  validação: todos os códigos têm de existir
+        for (String c : codigosEspecialidade) {
+            if (c == null || c.trim().isEmpty()) return false;
+            if (procurarEspecialidadePorCodigo(c) == null) return false;
+        }
+
+        if (procurarSintomaPorNome(nome) != null) return false;
+
+        ensureCapSintomas();
+        sintomas[nSintomas++] = new Sintoma(nome.trim(), nivel.trim(), codigosEspecialidade);
+        return true;
+    }
+
+    /**
+     * READ: procurar sintoma por nome.
+     */
+    public Sintoma procurarSintomaPorNome(String nome) {
+        int idx = indexSintoma(nome);
+        return (idx == -1) ? null : sintomas[idx];
+    }
+
+    /**
+     * UPDATE: alterar nível do sintoma.
+     */
+    public boolean atualizarNivelSintoma(String nome, String novoNivel) {
+        int idx = indexSintoma(nome);
+        if (idx == -1) return false;
+
+        if (novoNivel == null || novoNivel.trim().isEmpty()) return false;
+        sintomas[idx].setNivelUrgencia(novoNivel.trim());
+        return true;
+    }
+
+    /**
+     * UPDATE: alterar as especialidades associadas.
+     * Regras: array não vazio e todos os códigos têm de existir.
+     */
+    public boolean atualizarEspecialidadesSintoma(String nome, String[] novosCodigos) {
+        int idx = indexSintoma(nome);
+        if (idx == -1) return false;
+
+        if (novosCodigos == null || novosCodigos.length == 0) return false;
+
+        for (String c : novosCodigos) {
+            if (c == null || c.trim().isEmpty()) return false;
+            if (procurarEspecialidadePorCodigo(c) == null) return false;
+        }
+
+        sintomas[idx].setCodigoEspecialidade(novosCodigos);
+        return true;
+    }
+
+    /**
+     * DELETE: remover sintoma por nome (shift).
+     */
+    public boolean removerSintoma(String nome) {
+        int idx = indexSintoma(nome);
+        if (idx == -1) return false;
+
+        for (int i = idx; i < nSintomas - 1; i++) {
+            sintomas[i] = sintomas[i + 1];
+        }
+        sintomas[nSintomas - 1] = null;
+        nSintomas--;
+        return true;
+    }
+
+    private int indexSintoma(String nome) {
+        if (nome == null) return -1;
+        String n = nome.trim();
+        for (int i = 0; i < nSintomas; i++) {
+            if (sintomas[i].getNome().equalsIgnoreCase(n)) return i;
+        }
+        return -1;
+    }
+
+    private void ensureCapSintomas() {
+        if (nSintomas < sintomas.length) return;
+
+        Sintoma[] novo = new Sintoma[sintomas.length * 2];
+        for (int i = 0; i < sintomas.length; i++) {
+            novo[i] = sintomas[i];
+        }
+        sintomas = novo;
+    }
+
+    // CRUD UTENTE (ordem de chegada)
+
+    /**
+     * CREATE: adiciona utente.
+     * O número é gerado automaticamente (ordem de chegada).
+     */
+    public Utente adicionarUtente(String nome, int idade, String sintoma, String nivelUrgencia) {
+        if (nome == null || nome.trim().isEmpty()) return null;
+        if (idade < 0) return null;
+        if (sintoma == null || sintoma.trim().isEmpty()) return null;
+        if (nivelUrgencia == null || nivelUrgencia.trim().isEmpty()) return null;
+
+        ensureCapUtentes();
+
+        int numero = proximoNumeroUtente++; // ordem de chegada
+        Utente u = new Utente(numero, nome.trim(), idade, sintoma.trim(), nivelUrgencia.trim());
+        utentes[nUtentes++] = u;
+        return u;
+    }
+
+    public Utente procurarUtentePorNumero(int numero) {
+        int idx = indexUtente(numero);
+        return (idx == -1) ? null : utentes[idx];
+    }
+
+    public boolean atualizarUtente(int numero, String novoNome, int novaIdade, String novoSintoma, String novoNivel) {
+        int idx = indexUtente(numero);
+        if (idx == -1) return false;
+
+        if (novoNome != null && !novoNome.trim().isEmpty()) utentes[idx].setNome(novoNome.trim());
+        if (novaIdade >= 0) utentes[idx].setIdade(novaIdade);
+        if (novoSintoma != null && !novoSintoma.trim().isEmpty()) utentes[idx].setSintoma(novoSintoma.trim());
+        if (novoNivel != null && !novoNivel.trim().isEmpty()) utentes[idx].setNivelUrgencia(novoNivel.trim());
+
+        return true;
+    }
+
+    public boolean removerUtente(int numero) {
+        int idx = indexUtente(numero);
+        if (idx == -1) return false;
+
+        for (int i = idx; i < nUtentes - 1; i++) {
+            utentes[i] = utentes[i + 1];
+        }
+        utentes[nUtentes - 1] = null;
+        nUtentes--;
+        return true;
+    }
+
+    private int indexUtente(int numero) {
+        for (int i = 0; i < nUtentes; i++) {
+            if (utentes[i].getNumero() == numero) return i;
+        }
+        return -1;
+    }
+
+    private void ensureCapUtentes() {
+        if (nUtentes < utentes.length) return;
+
+        Utente[] novo = new Utente[utentes.length * 2];
+        for (int i = 0; i < utentes.length; i++) {
+            novo[i] = utentes[i];
+        }
+        utentes = novo;
+    }
+}

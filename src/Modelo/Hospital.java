@@ -29,14 +29,14 @@ public class Hospital {
     }
 
     // Adiciona um médico ao hospital
-//    public void adicionarMedico(Medico m) {
-//        medicos[totalMedicos++] = m;
-//    }
+    public void adicionarMedico(Medico m) {
+        medicos[totalMedicos++] = m;
+    }
 
-    // Adiciona um paciente à sala de espera
-//    public void adicionarPaciente(Paciente p) {
-//        pacientes[totalPacientes++] = p;
-//    }
+    // Adiciona um utente à sala de espera
+    public void adicionarUtente(Utente u) {
+        utentes[totalUtentes++] = u;
+    }
 
     /**
      * Avança o tempo e processa eventos associados.

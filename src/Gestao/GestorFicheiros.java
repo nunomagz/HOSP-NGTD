@@ -1,6 +1,6 @@
 package Gestao;
 
-import Configurações.Configurações;
+import Configurações.Configuracoes;
 import Modelo.Especialidade;
 import Modelo.Medico;
 import Modelo.NivelUrgencia;
@@ -22,12 +22,12 @@ public class GestorFicheiros {
 
     // Constrói o caminho completo: "Dados/" + "especialidades.txt"
     private String fullPath(String fileName) {
-        return Configurações.getCaminhoficheiro() + fileName;
+        return Configuracoes.getCaminhoficheiro() + fileName;
     }
 
     // Faz split de uma linha usando o separador configurado (ex: ";")
     private String[] split(String line) {
-        return line.split(Pattern.quote(Configurações.getSeparadorFicheiro()));
+        return line.split(Pattern.quote(Configuracoes.getSeparadorFicheiro()));
     }
 
     /**
@@ -52,7 +52,7 @@ public class GestorFicheiros {
     // ---------------- ESPECIALIDADES ----------------
 
     private void carregarEspecialidades(GestãoHOSP g) throws IOException {
-        File f = new File(fullPath(Configurações.getNomeFicheiroEspecialidade()));
+        File f = new File(fullPath(Configuracoes.getNomeFicheiroEspecialidade()));
         if (!f.exists()) return;
 
         try (BufferedReader br = new BufferedReader(
@@ -80,7 +80,7 @@ public class GestorFicheiros {
     }
 
     private void guardarEspecialidades(GestãoHOSP g) throws IOException {
-        File f = new File(fullPath(Configurações.getNomeFicheiroEspecialidade()));
+        File f = new File(fullPath(Configuracoes.getNomeFicheiroEspecialidade()));
 
         // false -> reescreve o ficheiro inteiro
         try (BufferedWriter bw = new BufferedWriter(
@@ -88,7 +88,7 @@ public class GestorFicheiros {
 
             for (int i = 0; i < g.getNEspecialidades(); i++) {
                 Especialidade e = g.getEspecialidadeAt(i);
-                bw.write(e.getCodigo() + Configurações.getSeparadorFicheiro() + e.getNome());
+                bw.write(e.getCodigo() + Configuracoes.getSeparadorFicheiro() + e.getNome());
                 bw.newLine();
             }
         }
@@ -97,7 +97,7 @@ public class GestorFicheiros {
     // ---------------- MÉDICOS ----------------
 
     private void carregarMedicos(GestãoHOSP g) throws IOException {
-        File f = new File(fullPath(Configurações.getNomeFicheiroMedicos()));
+        File f = new File(fullPath(Configuracoes.getNomeFicheiroMedicos()));
         if (!f.exists()) return;
 
         try (BufferedReader br = new BufferedReader(
@@ -135,7 +135,7 @@ public class GestorFicheiros {
     }
 
     private void guardarMedicos(GestãoHOSP g) throws IOException {
-        File f = new File(fullPath(Configurações.getNomeFicheiroMedicos()));
+        File f = new File(fullPath(Configuracoes.getNomeFicheiroMedicos()));
 
         try (BufferedWriter bw = new BufferedWriter(
                 new OutputStreamWriter(new FileOutputStream(f, false), StandardCharsets.UTF_8))) {
@@ -143,10 +143,10 @@ public class GestorFicheiros {
             for (int i = 0; i < g.getNMedicos(); i++) {
                 Medico m = g.getMedicoAt(i);
 
-                bw.write(m.getNome() + Configurações.getSeparadorFicheiro()
-                        + m.getEspecialidade() + Configurações.getSeparadorFicheiro()
-                        + m.getHoraEntrada() + Configurações.getSeparadorFicheiro()
-                        + m.getHoraSaida() + Configurações.getSeparadorFicheiro()
+                bw.write(m.getNome() + Configuracoes.getSeparadorFicheiro()
+                        + m.getEspecialidade() + Configuracoes.getSeparadorFicheiro()
+                        + m.getHoraEntrada() + Configuracoes.getSeparadorFicheiro()
+                        + m.getHoraSaida() + Configuracoes.getSeparadorFicheiro()
                         + m.getSalario());
                 bw.newLine();
             }
@@ -156,7 +156,7 @@ public class GestorFicheiros {
     // ---------------- SINTOMAS ----------------
 
     private void carregarSintomas(GestãoHOSP g) throws IOException {
-        File f = new File(fullPath(Configurações.getNomeFicheiroSintomas()));
+        File f = new File(fullPath(Configuracoes.getNomeFicheiroSintomas()));
         if (!f.exists()) return;
 
         try (BufferedReader br = new BufferedReader(
@@ -199,7 +199,7 @@ public class GestorFicheiros {
     }
 
     private void guardarSintomas(GestãoHOSP g) throws IOException {
-        File f = new File(fullPath(Configurações.getNomeFicheiroSintomas()));
+        File f = new File(fullPath(Configuracoes.getNomeFicheiroSintomas()));
 
         try (BufferedWriter bw = new BufferedWriter(
                 new OutputStreamWriter(new FileOutputStream(f, false), StandardCharsets.UTF_8))) {
@@ -210,14 +210,14 @@ public class GestorFicheiros {
                 // Construímos linha: Nome;Nivel;COD;COD...
                 StringBuilder sb = new StringBuilder();
                 sb.append(s.getNome())
-                        .append(Configurações.getSeparadorFicheiro())
+                        .append(Configuracoes.getSeparadorFicheiro())
                         .append(s.getNivelUrgencia());
 
                 String[] cods = s.getCodigoEspecialidade();
                 if (cods != null) {
                     for (String c : cods) {
                         if (c != null && !c.trim().isEmpty()) {
-                            sb.append(Configurações.getSeparadorFicheiro())
+                            sb.append(Configuracoes.getSeparadorFicheiro())
                                     .append(c.trim().toUpperCase());
                         }
                     }

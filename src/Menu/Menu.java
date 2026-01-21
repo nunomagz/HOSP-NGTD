@@ -1,6 +1,6 @@
 package Menu;
 
-import Configurações.Configurações;
+import Configurações.Configuracoes;
 import Gestao.GestorFicheiros;
 import Gestao.GestãoHOSP;
 import Modelo.Hospital;
@@ -680,10 +680,10 @@ public class Menu {
             switch (opcao) {
                 case 1:
                     // Lógica para String (Caminho)
-                    System.out.print("Novo Caminho (Atual: " + Configurações.getCaminhoficheiro() + "): ");
+                    System.out.print("Novo Caminho (Atual: " + Configuracoes.getCaminhoficheiro() + "): ");
                     String novoCaminho = scanner.nextLine().trim();
                     if (!novoCaminho.isEmpty()) {
-                        Configurações.setCaminhoficheiro(novoCaminho);
+                        Configuracoes.setCaminhoficheiro(novoCaminho);
                         System.out.println("Caminho atualizado!");
                     } else {
                         System.out.println("Mantido o caminho anterior.");
@@ -694,14 +694,14 @@ public class Menu {
                 case 2:
                     System.out.println("\n--- Tempos de Consulta ---");
 
-                    int tBaixa = lerIntAlterar("Tempo Baixa", Configurações.getTempoConsultaBaixa());
-                    Configurações.setTempoConsultaBaixa(tBaixa);
+                    int tBaixa = lerIntAlterar("Tempo Baixa", Configuracoes.getTempoConsultaBaixa());
+                    Configuracoes.setTempoConsultaBaixa(tBaixa);
 
-                    int tMedia = lerIntAlterar("Tempo Média", Configurações.getTempoConsultaMedia());
-                    Configurações.setTempoConsultaMedia(tMedia);
+                    int tMedia = lerIntAlterar("Tempo Média", Configuracoes.getTempoConsultaMedia());
+                    Configuracoes.setTempoConsultaMedia(tMedia);
 
-                    int tUrgente = lerIntAlterar("Tempo Urgente", Configurações.getTempoConsultaUrgente());
-                    Configurações.setTempoConsultaUrgente(tUrgente);
+                    int tUrgente = lerIntAlterar("Tempo Urgente", Configuracoes.getTempoConsultaUrgente());
+                    Configuracoes.setTempoConsultaUrgente(tUrgente);
 
                     System.out.println("Tempos atualizados!");
                     pausar();
@@ -710,14 +710,14 @@ public class Menu {
                 case 3:
                     System.out.println("\n--- Limites de Espera (para subir de nível) ---");
 
-                    int lVerde = lerIntAlterar("Verde -> Amarelo", Configurações.getLimiteEsperaVerdeParaAmarelo());
-                    Configurações.setLimiteEsperaVerdeParaAmarelo(lVerde);
+                    int lVerde = lerIntAlterar("Verde -> Amarelo", Configuracoes.getLimiteEsperaVerdeParaAmarelo());
+                    Configuracoes.setLimiteEsperaVerdeParaAmarelo(lVerde);
 
-                    int lAmarelo = lerIntAlterar("Amarelo -> Vermelho", Configurações.getLimiteEsperaAmareloParaVermelho());
-                    Configurações.setLimiteEsperaAmareloParaVermelho(lAmarelo);
+                    int lAmarelo = lerIntAlterar("Amarelo -> Vermelho", Configuracoes.getLimiteEsperaAmareloParaVermelho());
+                    Configuracoes.setLimiteEsperaAmareloParaVermelho(lAmarelo);
 
-                    int lVermelho = lerIntAlterar("Vermelho -> Saída", Configurações.getLimiteEsperaVermelhoSaida());
-                    Configurações.setLimiteEsperaVermelhoSaida(lVermelho);
+                    int lVermelho = lerIntAlterar("Vermelho -> Saída", Configuracoes.getLimiteEsperaVermelhoSaida());
+                    Configuracoes.setLimiteEsperaVermelhoSaida(lVermelho);
 
                     System.out.println("Limites atualizados!");
                     pausar();
@@ -727,7 +727,7 @@ public class Menu {
                     System.out.print("Nova Password (Enter para cancelar): ");
                     String passe = scanner.nextLine().trim();
                     if (!passe.isEmpty()) {
-                        Configurações.setPassword(passe);
+                        Configuracoes.setPassword(passe);
                         System.out.println("Password Atualizada!");
                     } else {
                         System.out.println("Password mantida.");

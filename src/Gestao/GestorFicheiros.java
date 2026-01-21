@@ -1,6 +1,6 @@
 package Gestao;
 
-import Configurações.Configuracoes;
+import Configuracoes.Configuracoes;
 import Modelo.Especialidade;
 import Modelo.Medico;
 import Modelo.NivelUrgencia;
@@ -34,7 +34,7 @@ public class GestorFicheiros {
      * Carrega tudo para a memória (arrays dentro de GestãoHOSP).
      * Ordem importa por causa das validações.
      */
-    public void carregarTudo(GestãoHOSP g) throws IOException {
+    public void carregarTudo(GestaoHOSP g) throws IOException {
         carregarEspecialidades(g);
         carregarMedicos(g);
         carregarSintomas(g);
@@ -43,7 +43,7 @@ public class GestorFicheiros {
     /**
      * Guarda tudo nos ficheiros (reescreve o ficheiro completo).
      */
-    public void guardarTudo(GestãoHOSP g) throws IOException {
+    public void guardarTudo(GestaoHOSP g) throws IOException {
         guardarEspecialidades(g);
         guardarMedicos(g);
         guardarSintomas(g);
@@ -51,7 +51,7 @@ public class GestorFicheiros {
 
     // ---------------- ESPECIALIDADES ----------------
 
-    private void carregarEspecialidades(GestãoHOSP g) throws IOException {
+    private void carregarEspecialidades(GestaoHOSP g) throws IOException {
         File f = new File(fullPath(Configuracoes.getNomeFicheiroEspecialidade()));
         if (!f.exists()) return;
 
@@ -79,7 +79,7 @@ public class GestorFicheiros {
         }
     }
 
-    private void guardarEspecialidades(GestãoHOSP g) throws IOException {
+    private void guardarEspecialidades(GestaoHOSP g) throws IOException {
         File f = new File(fullPath(Configuracoes.getNomeFicheiroEspecialidade()));
 
         // false -> reescreve o ficheiro inteiro
@@ -96,7 +96,7 @@ public class GestorFicheiros {
 
     // ---------------- MÉDICOS ----------------
 
-    private void carregarMedicos(GestãoHOSP g) throws IOException {
+    private void carregarMedicos(GestaoHOSP g) throws IOException {
         File f = new File(fullPath(Configuracoes.getNomeFicheiroMedicos()));
         if (!f.exists()) return;
 
@@ -134,7 +134,7 @@ public class GestorFicheiros {
         }
     }
 
-    private void guardarMedicos(GestãoHOSP g) throws IOException {
+    private void guardarMedicos(GestaoHOSP g) throws IOException {
         File f = new File(fullPath(Configuracoes.getNomeFicheiroMedicos()));
 
         try (BufferedWriter bw = new BufferedWriter(
@@ -155,7 +155,7 @@ public class GestorFicheiros {
 
     // ---------------- SINTOMAS ----------------
 
-    private void carregarSintomas(GestãoHOSP g) throws IOException {
+    private void carregarSintomas(GestaoHOSP g) throws IOException {
         File f = new File(fullPath(Configuracoes.getNomeFicheiroSintomas()));
         if (!f.exists()) return;
 
@@ -198,7 +198,7 @@ public class GestorFicheiros {
         }
     }
 
-    private void guardarSintomas(GestãoHOSP g) throws IOException {
+    private void guardarSintomas(GestaoHOSP g) throws IOException {
         File f = new File(fullPath(Configuracoes.getNomeFicheiroSintomas()));
 
         try (BufferedWriter bw = new BufferedWriter(

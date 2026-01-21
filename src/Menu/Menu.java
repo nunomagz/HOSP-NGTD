@@ -1,15 +1,15 @@
 package Menu;
 
-import Configurações.Configuracoes;
+import Configuracoes.Configuracoes;
 import Gestao.GestorFicheiros;
-import Gestao.GestãoHOSP;
+import Gestao.GestaoHOSP;
 import Modelo.Hospital;
 import Modelo.RelogioHospital;
 import java.io.IOException;
 import java.util.Scanner;
 
 public class Menu {
-    private GestãoHOSP gestao;
+    private GestaoHOSP gestao;
     private GestorFicheiros ficheiros;
     private Hospital hospital;
     private Scanner scanner;
@@ -17,7 +17,7 @@ public class Menu {
 
 
     public Menu() {
-        this.gestao = new GestãoHOSP();
+        this.gestao = new GestaoHOSP();
         this.ficheiros = new GestorFicheiros();
         this.hospital = new Hospital();
         this.scanner = new Scanner(System.in);
@@ -894,7 +894,7 @@ public class Menu {
             if (input.isEmpty()) {
                 return false;
             }
-            if(input.equals(Configurações.getPassword())){
+            if(input.equals(Configuracoes.getPassword())){
                 return true;
             }
             System.out.println("Password incorreta! Tente novamente.");

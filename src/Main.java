@@ -1,4 +1,5 @@
 import Menu.Menu;
+import Menu.Menu;
 
 /**
  * Classe principal da aplicacao de gestao TVDE.
@@ -25,7 +26,7 @@ public class Main {
 
         // Criar e iniciar o menu
         Menu menu = new Menu();
-        menu.menuInicial();
+        menu.iniciar();
 
         System.out.println("\nSistema encerrado.");
     }

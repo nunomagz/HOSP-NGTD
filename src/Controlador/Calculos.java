@@ -11,6 +11,7 @@ public class Calculos {
      * Regra 1: Sintomas com maior urgência têm prioridade absoluta.
      * Regra 2: Dentro do nível de urgência vencedor, ganha a especialidade mais frequente.
      * * @param sintomas O array de objetos Sintoma do utente.
+     *
      * @param qtdSintomas O número real de sintomas no array (para ignorar posições null).
      * @return O código da especialidade vencedora (ex: "CARD") ou null se não for possível.
      */
@@ -97,7 +98,7 @@ public class Calculos {
         return especialidadeVencedora;
     }
 
-//     Metodo auxiliar para converter texto em peso numérico
+    //     Metodo auxiliar para converter texto em peso numérico
     private static int converterNivelParaPeso(String nivel) {
         if (nivel == null) return 0;
         if (nivel.equalsIgnoreCase("Vermelha")) return 3;
@@ -141,20 +142,23 @@ public class Calculos {
 
                     System.out.println("🚨 NOTIFICAÇÃO: O utente " + u.getNome() + " passou para urgência VERMELHO.");
                     houveAlteracao = true;
-            }
-            // Lógica 3: Vermelho -> Saída
-            else if (nivelAtual.equalsIgnoreCase(NivelUrgencia.VERMELHO)) {
-                if (tempoEspera >= Configuracoes.getLimiteEsperaVermelhoSaida()) {
-                    System.out.println("🚑 NOTIFICAÇÃO: O utente " + u.getNome() + " foi transferido (Tempo Limite).");
+                }
+                // Lógica 3: Vermelho -> Saída
+                else if (nivelAtual.equalsIgnoreCase(NivelUrgencia.VERMELHO)) {
+                    if (tempoEspera >= Configuracoes.getLimiteEsperaVermelhoSaida()) {
+                        System.out.println("🚑 NOTIFICAÇÃO: O utente " + u.getNome() + " foi transferido (Tempo Limite).");
 
-                    // Aqui podes marcar o utente para remoção ou mudar o nome
-                    u.setNome(u.getNome() + " [TRANSFERIDO]");
-                    // Ou chamar o removerUtente(u.getNumero()) se tiveres a certeza dos índices
+                        // Aqui podes marcar o utente para remoção ou mudar o nome
+                        u.setNome(u.getNome() + " [TRANSFERIDO]");
+                        // Ou chamar o removerUtente(u.getNumero()) se tiveres a certeza dos índices
 
-                    houveAlteracao = true;
+                        houveAlteracao = true;
+                    }
+                }
+
+                return houveAlteracao;
             }
         }
-
         return houveAlteracao;
     }
 }

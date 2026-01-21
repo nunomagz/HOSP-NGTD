@@ -1,6 +1,6 @@
 package Controlador;
 
-import Configurações.Configuracoes;
+import Configuracoes.Configuracoes;
 import Modelo.NivelUrgencia;
 import Modelo.Sintoma;
 import Modelo.Utente;

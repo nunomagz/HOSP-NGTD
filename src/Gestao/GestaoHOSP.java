@@ -17,7 +17,7 @@ import Modelo.Utente;
  * - Sintomas
  * - Utentes
  */
-public class GestãoHOSP {
+public class GestaoHOSP {
 
     // "BASE DE DADOS" EM MEMÓRIA
 

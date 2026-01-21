@@ -1,4 +1,4 @@
-package Configurações;
+package Configuracoes;
 
 public class Configuracoes {
 

@@ -25,7 +25,7 @@ public class Main {
 
         // Criar e iniciar o menu
         Menu menu = new Menu();
-        menu.menuInicial();
+        menu.iniciar();
 
         System.out.println("\nSistema encerrado.");
     }

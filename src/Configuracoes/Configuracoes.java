@@ -1,6 +1,6 @@
-package Configurações;
+package Configuracoes;
 
-public class Configurações {
+public class Configuracoes {
 
     // Gestao de ficheios
     private static String caminhoficheiro = "Dados/";
@@ -36,7 +36,7 @@ public class Configurações {
     }
 
     public static void setCaminhoficheiro(String caminhoficheiro) {
-        Configurações.caminhoficheiro = caminhoficheiro;
+        Configuracoes.caminhoficheiro = caminhoficheiro;
     }
 
     public static String getNomeFicheiroMedicos() {
@@ -44,7 +44,7 @@ public class Configurações {
     }
 
     public static void setNomeFicheiroMedicos(String nomeFicheiroMedicos) {
-        Configurações.nomeFicheiroMedicos = nomeFicheiroMedicos;
+        Configuracoes.nomeFicheiroMedicos = nomeFicheiroMedicos;
     }
 
     public static String getNomeFicheiroSintomas() {
@@ -52,7 +52,7 @@ public class Configurações {
     }
 
     public static void setNomeFicheiroSintomas(String nomeFicheiroSintomas) {
-        Configurações.nomeFicheiroSintomas = nomeFicheiroSintomas;
+        Configuracoes.nomeFicheiroSintomas = nomeFicheiroSintomas;
     }
 
     public static String getNomeFicheiroEspecialidade() {
@@ -60,7 +60,7 @@ public class Configurações {
     }
 
     public static void setNomeFicheiroEspecialidade(String nomeFicheiroEspecialidade) {
-        Configurações.nomeFicheiroEspecialidade = nomeFicheiroEspecialidade;
+        Configuracoes.nomeFicheiroEspecialidade = nomeFicheiroEspecialidade;
     }
 
     public static String getSeparadorFicheiro() {
@@ -68,7 +68,7 @@ public class Configurações {
     }
 
     public static void setSeparadorFicheiro(String separadorFicheiro) {
-        Configurações.separadorFicheiro = separadorFicheiro;
+        Configuracoes.separadorFicheiro = separadorFicheiro;
     }
 
     public static int getTempoConsultaBaixa() {
@@ -76,7 +76,7 @@ public class Configurações {
     }
 
     public static void setTempoConsultaBaixa(int tempoConsultaBaixa) {
-        Configurações.tempoConsultaBaixa = tempoConsultaBaixa;
+        Configuracoes.tempoConsultaBaixa = tempoConsultaBaixa;
     }
 
     public static int getTempoConsultaMedia() {
@@ -84,7 +84,7 @@ public class Configurações {
     }
 
     public static void setTempoConsultaMedia(int tempoConsultaMedia) {
-        Configurações.tempoConsultaMedia = tempoConsultaMedia;
+        Configuracoes.tempoConsultaMedia = tempoConsultaMedia;
     }
 
     public static int getTempoConsultaUrgente() {
@@ -92,7 +92,7 @@ public class Configurações {
     }
 
     public static void setTempoConsultaUrgente(int tempoConsultaUrgente) {
-        Configurações.tempoConsultaUrgente = tempoConsultaUrgente;
+        Configuracoes.tempoConsultaUrgente = tempoConsultaUrgente;
     }
 
     public static int getLimiteEsperaVerdeParaAmarelo() {
@@ -124,7 +124,7 @@ public class Configurações {
     }
 
     public static void setHorasTrabalhoParaDescanso(int horasTrabalhoParaDescanso) {
-        Configurações.horasTrabalhoParaDescanso = horasTrabalhoParaDescanso;
+        Configuracoes.horasTrabalhoParaDescanso = horasTrabalhoParaDescanso;
     }
 
     public static int getTempoDescanso() {
@@ -132,7 +132,7 @@ public class Configurações {
     }
 
     public static void setTempoDescanso(int tempoDescanso) {
-        Configurações.tempoDescanso = tempoDescanso;
+        Configuracoes.tempoDescanso = tempoDescanso;
     }
 
     public static String getPassword() {
@@ -140,6 +140,6 @@ public class Configurações {
     }
 
     public static void setPassword(String password) {
-        Configurações.password = password;
+        Configuracoes.password = password;
     }
 }

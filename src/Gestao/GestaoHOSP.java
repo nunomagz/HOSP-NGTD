@@ -17,7 +17,7 @@ import Modelo.Utente;
  * - Sintomas
  * - Utentes
  */
-public class GestãoHOSP {
+public class GestaoHOSP {
 
     // "BASE DE DADOS" EM MEMÓRIA
 
@@ -66,17 +66,15 @@ public class GestãoHOSP {
      * - código único
      */
     public boolean adicionarEspecialidade(String codigo, String nome) {
-        if (codigo == null || codigo.trim().isEmpty()) return false;
-        if (nome == null || nome.trim().isEmpty()) return false;
+        if (vazio(codigo) || vazio(nome)) return false;
 
-        // impedir duplicados
-        if (procurarEspecialidadePorCodigo(codigo) != null) return false;
+        String c = cod(codigo);
+        String n = nomeTrim(nome);
 
-        // se for preciso, aumenta capacidade do array
+        if (procurarEspecialidadePorCodigo(c) != null) return false;
+
         ensureCapEspecialidades();
-
-        especialidades[nEspecialidades++] =
-                new Especialidade(codigo.trim().toUpperCase(), nome.trim());
+        especialidades[nEspecialidades++] = new Especialidade(c, n);
         return true;
     }
 
@@ -164,29 +162,28 @@ public class GestãoHOSP {
      * - não permitir médico duplicado por nome (não há ID no modelo)
      */
     public boolean adicionarMedico(String nome, String espCodigo, int entrada, int saida, int salario) {
-        if (nome == null || nome.trim().isEmpty()) return false;
-        if (espCodigo == null || espCodigo.trim().isEmpty()) return false;
+        if (vazio(nome) || vazio(espCodigo)) return false;
 
-        //  validação: especialidade tem de existir
-        if (procurarEspecialidadePorCodigo(espCodigo) == null) return false;
+        String n = nomeTrim(nome);
+        String esp = cod(espCodigo);
+
+        // especialidade tem de existir
+        if (procurarEspecialidadePorCodigo(esp) == null) return false;
 
         // impedir duplicados por nome
-        if (procurarMedicoPorNome(nome) != null) return false;
+        if (procurarMedicoPorNome(n) != null) return false;
 
         ensureCapMedicos();
 
-        // Nota: no vosso modelo Medico, o construtor ignora o parâmetro "disponivel"
-        // e faz this.disponivel = false; (isso é um bug/decisão vossa)
         medicos[nMedicos++] = new Medico(
-                nome.trim(),
-                espCodigo.trim().toUpperCase(),
+                n,
+                esp,
                 entrada,
                 saida,
                 salario,
                 false,
                 0
         );
-
         return true;
     }
 
@@ -264,21 +261,19 @@ public class GestãoHOSP {
      * - cada código associado tem de existir no array de especialidades
      */
     public boolean adicionarSintoma(String nome, String nivel, String[] codigosEspecialidade) {
-        if (nome == null || nome.trim().isEmpty()) return false;
-        if (nivel == null || nivel.trim().isEmpty()) return false;
+        if (vazio(nome) || vazio(nivel)) return false;
 
-        if (codigosEspecialidade == null || codigosEspecialidade.length == 0) return false;
+        String n = nomeTrim(nome);
+        String nv = nomeTrim(nivel);
 
-        //  validação: todos os códigos têm de existir
-        for (String c : codigosEspecialidade) {
-            if (c == null || c.trim().isEmpty()) return false;
-            if (procurarEspecialidadePorCodigo(c) == null) return false;
-        }
+        // valida + normaliza códigos (já garante que existem)
+        String[] codsOk = validarCodigosEspecialidade(codigosEspecialidade);
+        if (codsOk == null) return false;
 
-        if (procurarSintomaPorNome(nome) != null) return false;
+        if (procurarSintomaPorNome(n) != null) return false;
 
         ensureCapSintomas();
-        sintomas[nSintomas++] = new Sintoma(nome.trim(), nivel.trim(), codigosEspecialidade);
+        sintomas[nSintomas++] = new Sintoma(n, nv, codsOk);
         return true;
     }
 
@@ -420,4 +415,41 @@ public class GestãoHOSP {
         }
         utentes = novo;
     }
+
+    // Helpers
+
+    private boolean vazio(String s) {
+        return s == null || s.trim().isEmpty();
+    }
+
+    // normaliza códigos (ex: " card " -> "CARD")
+    private String cod(String s) {
+        return s.trim().toUpperCase();
+    }
+
+    // normaliza nomes (só trim)
+    private String nomeTrim(String s) {
+        return s.trim();
+    }
+
+    /**
+     * Valida e normaliza uma lista de códigos de especialidade.
+     * - devolve null se for inválida (vazia, com elementos vazios, ou código inexistente)
+     * - devolve array novo com códigos em UPPERCASE se for válida
+     */
+    private String[] validarCodigosEspecialidade(String[] codigos) {
+        if (codigos == null || codigos.length == 0) return null;
+
+        String[] out = new String[codigos.length];
+        for (int i = 0; i < codigos.length; i++) {
+            if (vazio(codigos[i])) return null;
+
+            String c = cod(codigos[i]);
+            if (procurarEspecialidadePorCodigo(c) == null) return null;
+
+            out[i] = c;
+        }
+        return out;
+    }
+
 }

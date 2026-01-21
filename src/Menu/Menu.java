@@ -75,17 +75,15 @@ public class Menu {
 
     // --- MENU GESTÃO DE DADOS ---
     public void menuGestaoDados(){
+
+        if(!autenticarAdmin()) {
+            return;
+        }
+
         int opcao;
+
         do {
             limparEcra();
-            System.out.println("Password:");
-            String pass = scanner.nextLine().trim();
-
-            if (!pass.equals(Configurações.getPassword())) {
-                System.out.println("Password incorreta!");
-                return;
-            }
-
             System.out.println("╔══════════════════════════════════════════════════════════════╗");
             System.out.println("║                        GESTÃO DE DADOS                       ║");
             System.out.println("╠══════════════════════════════════════════════════════════════╣");
@@ -137,15 +135,19 @@ public class Menu {
             switch (opcao) {
                 case 1:
                     adicionarMedico();
+                    pausar();
                     break;
                 case 2:
                     listarMedicos();
+                    pausar();
                     break;
                 case 3:
                     alterarMedico();
+                    pausar();
                     break;
                 case 4:
                     removerMedico();
+                    pausar();
                     break;
                 case 0:
                     break;
@@ -630,11 +632,8 @@ public class Menu {
 
     // --- MENU CONFIGURAÇÕES ---
     private void menuConfiguracoes() {
-        System.out.print("Password: ");
-        String pass = scanner.nextLine().trim();
 
-        if (!pass.equals(Configurações.getPassword())) {
-            System.out.println("Password incorreta!");
+        if(!autenticarAdmin()) {
             return;
         }
 
@@ -862,5 +861,18 @@ public class Menu {
             finalArray[i] = temp[i];
         }
             return finalArray;
+    }
+    private boolean autenticarAdmin() {
+        while (true) {
+            System.out.println("Password do admin (ou ENTER para voltar): ");
+            String input = scanner.nextLine().trim();
+            if (input.isEmpty()) {
+                return false;
+            }
+            if(input.equals(Configurações.getPassword())){
+                return true;
+            }
+            System.out.println("Password incorreta! Tente novamente.");
+        }
     }
 }

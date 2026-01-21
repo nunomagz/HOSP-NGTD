@@ -609,7 +609,7 @@ public class Menu {
                     pausar();
                     break;
                 case 2:
-                    enchaminharMedico(u);
+                    encaminharMedico(u);
                     pausar();
                     break;
                 case 0:
@@ -625,7 +625,6 @@ public class Menu {
     private void realizarTriagem(Utente u) {
         limparEcra();
         System.out.println("\n=== NOVA TRIAGEM ===");
-        String nome = lerTextoValido("Nome do Utente: ");
 
         int idade = lerInteiro("Idade do Utente: ");
 
@@ -645,7 +644,7 @@ public class Menu {
 
         String nivelUrgencia = gestao.procurarSintomaPorNome(nomeSintoma).getNivelUrgencia();
 
-        Modelo.Utente utente = gestao.adicionarUtente(nome, idade, nomeSintoma, nivelUrgencia);
+        Modelo.Utente utente = gestao.adicionarUtente(u.nome, idade, nomeSintoma, nivelUrgencia);
         if (utente != null) {
             // ciclo para enviar utente diretamente para medico se disponivel
             System.out.println("Triagem realizada.");
@@ -655,9 +654,12 @@ public class Menu {
 
     }
 
-    private void enchaminharMedico(Utente u) {
+    private void encaminharMedico(Utente u) {
         limparEcra();
         System.out.println("\n=== ENCAMINHAR PARA MÉDICO ===");
+
+        // Lógica para encaminhar o utente para o médico adequado
+        // ver se medico da especialidade está disponivel
 
         System.out.println("Utente " + u.getNome() + " encaminhado para o médico.");
     }

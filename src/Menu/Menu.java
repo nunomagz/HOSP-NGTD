@@ -5,6 +5,8 @@ import Gestao.GestorFicheiros;
 import Gestao.GestãoHOSP;
 import Modelo.Hospital;
 import Modelo.RelogioHospital;
+import Modelo.Utente;
+
 import java.io.IOException;
 import java.util.Scanner;
 
@@ -503,6 +505,7 @@ public class Menu {
     }
 
     // --- MENU FUNCIONAMENTO DO HOSPITAL ---
+    //mudar menu, modificar parte de utentes
     private void menuHospital() {
         int opcao;
         do {
@@ -510,7 +513,7 @@ public class Menu {
             System.out.println("╔══════════════════════════════════════════════════════════════╗");
             System.out.println("║                  FUNCIONAMENTO DO HOSPITAL                   ║");
             System.out.println("╠══════════════════════════════════════════════════════════════╣");
-            System.out.println("║  1. Realizar Triagem (Adicionar Utente)                      ║");
+            System.out.println("║  1. Admitir Utente                                           ║");
             System.out.println("║  2. Avançar Tempo                                            ║");
             System.out.println("║  3. Listar Utentes em espera                                 ║");
             System.out.println("║  0. Voltar                                                   ║");
@@ -522,7 +525,7 @@ public class Menu {
 
             switch (opcao) {
                 case 1:
-                    realizarTriagem();
+                    admitirUtente();
                     pausar();
                     break;
                 case 2:
@@ -541,8 +544,86 @@ public class Menu {
             }
         } while (opcao != 0);
     }
+
+    private void admitirUtente() {
+        System.out.println("\n=== ADMITIR UTENTE ===");
+
+        String nome = lerTextoValido("Nome do Utente: ");
+
+
+        System.out.println("Utente admitido, enviado para a sala de espera.");
+    }
+
+    private void avancarTempo() {
+        limparEcra();
+        System.out.println("\n--- A AVANÇAR O TEMPO ---");
+
+        relogio.avancarTempo();
+        System.out.println("Dia: " + relogio.getDiaAtual() + " | Hora Atual: " + relogio.getHoraAtual());
+
+        System.out.println("O tempo avançou. Médicos atenderam doentes e altas foram dadas.");
+        System.out.println("(Nota: As notificações aparecerão aqui quando o Aluno 3 terminar a lógica)");
+    }
+
+    private void listarUtentes() {
+        limparEcra();
+        System.out.println("\n=== UTENTES EM SALA DE ESPERA ===");
+        System.out.println("Lista de utentes atualmente na sala de espera:");
+        if (gestao.getNUtentes() == 0) {
+            System.out.println("Nenhum utente registado.");
+            return;
+        }
+        for (int i = 0; i < gestao.getNUtentes(); i++) {
+            System.out.println(gestao.getUtenteAt(i).toString());
+        }
+
+        System.out.println("\n0. Voltar");
+        int opcao = lerInteiro("\nEscolha uma reserva para alterar (0 para voltar): ");
+        //if para verificar se a opcao é valida e escolher o utente para efetuar a acao
+        if (opcao > 0 && opcao <= gestao.getNUtentes()) {
+            acaoUtente(gestao.getUtenteAt(opcao - 1));
+        }
+    }
+
+    //classe para interagir com o utente selecionado
+    private void acaoUtente(Utente u) {
+        //implementar ações para o utente selecionado
+        limparEcra();
+        int opcao;
+        if (u == null) {
+            System.out.println("Utente inválido.");
+            return;
+        }
+
+        System.out.println("=== AÇÃO UTENTE ===\n");
+        System.out.println("Utente Selecionado: " + u.toString());
+        System.out.println("1. Realizar Triagem");
+        System.out.println("2. Encaminhar para Médico");
+
+        do {
+            opcao = lerInteiro("\nEscolha uma ação (0 para voltar):");
+
+            switch (opcao) {
+                case 1:
+                    realizarTriagem(u);
+                    pausar();
+                    break;
+                case 2:
+                    enchaminharMedico(u);
+                    pausar();
+                    break;
+                case 0:
+                    break;
+                default:
+                    System.out.println("Opção inválida!");
+                    pausar();
+            }
+        } while (opcao != 0);
+    }
+
     // TESTAR PARA VER SE FUNCIONA
-    private void realizarTriagem() {
+    private void realizarTriagem(Utente u) {
+        limparEcra();
         System.out.println("\n=== NOVA TRIAGEM ===");
         String nome = lerTextoValido("Nome do Utente: ");
 
@@ -564,44 +645,21 @@ public class Menu {
 
         String nivelUrgencia = gestao.procurarSintomaPorNome(nomeSintoma).getNivelUrgencia();
 
-        Modelo.Utente u = gestao.adicionarUtente(nome, idade, nomeSintoma, nivelUrgencia);
-        if (u != null) {
-            System.out.println("✅ Utente " + nome + " encaminhado para a sala de espera.");
+        Modelo.Utente utente = gestao.adicionarUtente(nome, idade, nomeSintoma, nivelUrgencia);
+        if (utente != null) {
+            // ciclo para enviar utente diretamente para medico se disponivel
+            System.out.println("Triagem realizada.");
         } else {
-            System.out.println("Erro ao registar utente. Verifique os dados fornecidos.");
+            System.out.println("Erro ao realizar triagem. Verifique os dados fornecidos.");
         }
 
     }
 
-    private void avancarTempo() {
-        System.out.println("\n--- A AVANÇAR O TEMPO ---");
+    private void enchaminharMedico(Utente u) {
+        limparEcra();
+        System.out.println("\n=== ENCAMINHAR PARA MÉDICO ===");
 
-        relogio.avancarTempo();
-        System.out.println("Dia: " + relogio.getDiaAtual() + " | Hora Atual: " + relogio.getHoraAtual());
-
-        System.out.println("O tempo avançou. Médicos atenderam doentes e altas foram dadas.");
-        System.out.println("(Nota: As notificações aparecerão aqui quando o Aluno 3 terminar a lógica)");
-    }
-
-    private void listarUtentes() {
-        System.out.println("\n=== UTENTES EM SALA DE ESPERA ===");
-        System.out.println("Lista de utentes atualmente na sala de espera:");
-        if (gestao.getNUtentes() == 0) {
-            System.out.println("Nenhum utente registado.");
-            return;
-        }
-        for (int i = 0; i < gestao.getNUtentes(); i++) {
-            System.out.println(gestao.getUtenteAt(i).toString());
-        }
-
-        System.out.println("\n0. Voltar");
-        int opcao = lerInteiro("\nEscolha uma reserva para alterar (0 para voltar): ");
-        //if para verificar se a opcao é valida e escolher o utente para efetuar a acao
-    }
-
-    //classe para interagir com o utente selecionado
-    private void acaoUtente() {
-        //implementar ações para o utente selecionado
+        System.out.println("Utente " + u.getNome() + " encaminhado para o médico.");
     }
 
     // --- MENU ESTATÍSTICAS E LOGS ---

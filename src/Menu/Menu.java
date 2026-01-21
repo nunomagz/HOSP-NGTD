@@ -10,7 +10,7 @@ import java.util.Scanner;
 
 public class Menu {
     private GestãoHOSP gestao;
-    private GestorFicheiros dataIo;
+    private GestorFicheiros ficheiros;
     private Hospital hospital;
     private Scanner scanner;
     private RelogioHospital relogio;
@@ -18,13 +18,20 @@ public class Menu {
 
     public Menu() {
         this.gestao = new GestãoHOSP();
-        this.dataIo = new GestorFicheiros();
+        this.ficheiros = new GestorFicheiros();
         this.hospital = new Hospital();
         this.scanner = new Scanner(System.in);
         this.relogio = new RelogioHospital();
     }
 
-    public void Iniciar(){
+    public void iniciar(){
+        System.out.println("A carregar os dados do sistema...");
+        try {
+            ficheiros.carregarTudo(gestao);
+            System.out.println("Dados carregados com sucesso!");
+        }catch (IOException e) {
+            System.out.println("Não foi possivel carregar os dados iniciais (" + e.getMessage() + ")");
+        }
         menuInicial();
     }
     // --- MENU INICIAL ---
@@ -697,7 +704,7 @@ public class Menu {
                     int tUrgente = lerIntAlterar("Tempo Urgente", Configurações.getTempoConsultaUrgente());
                     Configurações.setTempoConsultaUrgente(tUrgente);
 
-                    System.out.println("✅ Tempos atualizados!");
+                    System.out.println("Tempos atualizados!");
                     pausar();
                     break;
 
@@ -746,7 +753,7 @@ public class Menu {
         if (resposta.equalsIgnoreCase("S")) {
             try {
                 System.out.println("A guardar dados...");
-                dataIo.guardarTudo(gestao);
+                ficheiros.guardarTudo(gestao);
                 System.out.println("Dados guardados com sucesso!");
             } catch (IOException e) {
                 System.out.println("ERRO: Não foi possível guardar os dados: " + e.getMessage());

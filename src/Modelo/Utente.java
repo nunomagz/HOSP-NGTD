@@ -6,6 +6,7 @@ public class Utente {
     public int idade;
     private String sintoma;
     private String NivelUrgencia;
+    private int tempoEsperaNivel;
 
     public Utente(int numero, String nome, int idade, String sintoma, String nivelUrgencia) {
         this.numero = numero;
@@ -13,6 +14,7 @@ public class Utente {
         this.idade = idade;
         this.sintoma = sintoma;
         NivelUrgencia = nivelUrgencia;
+        this.tempoEsperaNivel = 0;
     }
 
     public int getNumero() {
@@ -55,8 +57,20 @@ public class Utente {
         NivelUrgencia = nivelUrgencia;
     }
 
+    public int getTempoEsperaNivel() {
+        return tempoEsperaNivel;
+    }
+
+    public void incrementarTempoEspera() {
+        this.tempoEsperaNivel++;
+    }
+
+    public void resetarTempoEspera() {
+        this.tempoEsperaNivel = 0;
+    }
+
     @Override
     public String toString(){
-        return  " Número:" + numero + " | Nome: " + nome + " | Idade:  " + idade +  " | Sintoma " + sintoma + " | Nível da Urgência " + NivelUrgencia;
+        return  " Número:" + numero + " | Nome: " + nome + " | Idade:  " + idade +  " | Sintoma " + sintoma + " | Nível da Urgência " + NivelUrgencia + "| Tempo de Espera : " + tempoEsperaNivel;
     }
 }

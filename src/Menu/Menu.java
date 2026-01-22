@@ -558,9 +558,16 @@ public class Menu {
         System.out.println("\n=== ADMITIR UTENTE ===");
 
         String nome = lerTextoValido("Nome do Utente: ");
+        int idade = lerInteiro("Idade do Utente: ");
 
 
-        System.out.println("Utente admitido, enviado para a sala de espera.");
+        Utente u = gestao.admitirUtenteSimples(nome, idade);
+
+        if (u != null) {
+            System.out.println("Utente admitido com sucesso! Número: " + u.getNumero());
+        } else {
+            System.out.println("Erro ao admitir utente.");
+        }
     }
 
     private void avancarTempo() {
@@ -577,17 +584,16 @@ public class Menu {
     private void listarUtentes() {
         limparEcra();
         System.out.println("\n=== UTENTES EM SALA DE ESPERA ===");
-        System.out.println("Lista de utentes atualmente na sala de espera:");
         if (gestao.getNUtentes() == 0) {
             System.out.println("Nenhum utente registado.");
             return;
         }
         for (int i = 0; i < gestao.getNUtentes(); i++) {
+            System.out.println("Lista de utentes atualmente em sala de espera:");
             System.out.println(gestao.getUtenteAt(i).toString());
         }
 
-        System.out.println("\n0. Voltar");
-        int opcao = lerInteiro("\nEscolha uma reserva para alterar (0 para voltar): ");
+        int opcao = lerInteiro("\nEscolha um Utente (0 para voltar): ");
         //if para verificar se a opcao é valida e escolher o utente para efetuar a acao
         if (opcao > 0 && opcao <= gestao.getNUtentes()) {
             acaoUtente(gestao.getUtenteAt(opcao - 1));
@@ -635,7 +641,7 @@ public class Menu {
         limparEcra();
         System.out.println("\n=== NOVA TRIAGEM ===");
 
-        int idade = lerInteiro("Idade do Utente: ");
+        System.out.println("Utente: " + u.getNome() + " | Idade: " + u.getIdade());
 
         System.out.println("Selecione o Sintoma Principal:");
         //Listar sintomas disponíveis para ajudar o utilizador
@@ -644,22 +650,33 @@ public class Menu {
         }
 
         String nomeSintoma = lerTextoValido("Sintoma: ");
+        Modelo.Sintoma s = gestao.procurarSintomaPorNome(nomeSintoma);
 
-        // Valida se o sintoma existe antes de continuar
-        if (gestao.procurarSintomaPorNome(nomeSintoma) == null) {
-            System.out.println("Erro: Sintoma não reconhecido. Crie-o primeiro na Gestão de Dados.");
+        if (s == null) {
+            System.out.println("Erro: Sintoma não encontrado.");
             return;
         }
+        // Valida se o sintoma existe antes de continuar
+//        if (gestao.procurarSintomaPorNome(nomeSintoma) == null) {
+//            System.out.println("Erro: Sintoma não reconhecido. Crie-o primeiro na Gestão de Dados.");
+//            return;
+//        }
 
-        String nivelUrgencia = gestao.procurarSintomaPorNome(nomeSintoma).getNivelUrgencia();
+        u.setSintoma(s.getNome());
+        u.setNivelUrgencia(s.getNivelUrgencia());
+        u.resetarTempoEspera(); // Garante que o tempo começa a contar agora
 
-        Modelo.Utente utente = gestao.adicionarUtente(u.nome, idade, nomeSintoma, nivelUrgencia);
-        if (utente != null) {
-            // ciclo para enviar utente diretamente para medico se disponivel
-            System.out.println("Triagem realizada.");
-        } else {
-            System.out.println("Erro ao realizar triagem. Verifique os dados fornecidos.");
-        }
+        System.out.println("Triagem concluída! Nível atribuído: " + u.getNivelUrgencia());
+
+//        String nivelUrgencia = gestao.procurarSintomaPorNome(nomeSintoma).getNivelUrgencia();
+//
+//        Modelo.Utente utente = gestao.adicionarUtente(u.nome, u.idade, nomeSintoma, nivelUrgencia);
+//        if (utente != null) {
+//            ciclo para enviar utente diretamente para medico se disponivel
+//            System.out.println("Triagem realizada.");
+//        } else {
+//            System.out.println("Erro ao realizar triagem. Verifique os dados fornecidos.");
+//        }
 
     }
 

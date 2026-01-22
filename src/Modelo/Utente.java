@@ -8,12 +8,22 @@ public class Utente {
     private String NivelUrgencia;
     private int tempoEsperaNivel;
 
-    public Utente(int numero, String nome, int idade, String sintoma, String nivelUrgencia) {
+//    public Utente(int numero, String nome, int idade, String sintoma, String nivelUrgencia) {
+//        this.numero = numero;
+//        this.nome = nome;
+//        this.idade = idade;
+//        this.sintoma = sintoma;
+//        NivelUrgencia = nivelUrgencia;
+//        this.tempoEsperaNivel = 0;
+//    }
+
+    // Novo construtor para Admissão (antes da triagem)
+    public Utente(int numero, String nome, int idade) {
         this.numero = numero;
         this.nome = nome;
         this.idade = idade;
-        this.sintoma = sintoma;
-        NivelUrgencia = nivelUrgencia;
+        this.sintoma = "Pendente";        // Valor padrão
+        this.NivelUrgencia = "A aguardar"; // Valor padrão
         this.tempoEsperaNivel = 0;
     }
 

@@ -597,6 +597,8 @@ public class Menu {
         //if para verificar se a opcao é valida e escolher o utente para efetuar a acao
         if (opcao > 0 && opcao <= gestao.getNUtentes()) {
             acaoUtente(gestao.getUtenteAt(opcao - 1));
+        } else if (opcao != 0) {
+            System.out.println("Erro: O número [" + opcao + "] não está na lista!");
         }
     }
 
@@ -605,35 +607,29 @@ public class Menu {
         //implementar ações para o utente selecionado
         limparEcra();
         int opcao;
-        if (u == null) {
-            System.out.println("Utente inválido.");
-            return;
-        }
 
         System.out.println("=== AÇÃO UTENTE ===\n");
         System.out.println("Utente Selecionado: " + u.toString());
         System.out.println("1. Realizar Triagem");
         System.out.println("2. Encaminhar para Médico");
 
-        do {
-            opcao = lerInteiro("\nEscolha uma ação (0 para voltar):");
+        opcao = lerInteiro("\nEscolha uma ação (0 para voltar):");
 
-            switch (opcao) {
-                case 1:
-                    realizarTriagem(u);
-                    pausar();
-                    break;
-                case 2:
-                    encaminharMedico(u);
-                    pausar();
-                    break;
-                case 0:
-                    break;
-                default:
-                    System.out.println("Opção inválida!");
-                    pausar();
-            }
-        } while (opcao != 0);
+        switch (opcao) {
+            case 1:
+                realizarTriagem(u);
+                pausar();
+                break;
+            case 2:
+                encaminharMedico(u);
+                pausar();
+                break;
+            case 0:
+                break;
+            default:
+                System.out.println("Opção inválida!");
+                pausar();
+        }
     }
 
     // TESTAR PARA VER SE FUNCIONA

@@ -228,5 +228,116 @@ public class GestorFicheiros {
             }
         }
     }
+    // ---------------- CONFIGURAÇÕES ----------------
+
+    private static final String NOME_FICHEIRO_CONFIG = "config.txt";
+
+    // Helper: lê próxima linha (trim) ou devolve null
+    private String readLineTrim(BufferedReader br) throws IOException {
+        String l = br.readLine();
+        return (l == null) ? null : l.trim();
+    }
+
+    // Helper: aplica int apenas se a linha for válida (evita repetir try/catch)
+    private void applyIntIfValid(String line, java.util.function.IntConsumer setter) {
+        if (line == null || line.isEmpty()) return;
+        try {
+            setter.accept(Integer.parseInt(line));
+        } catch (NumberFormatException ignored) {
+            // Mantém valor atual (tolerante a ficheiro desatualizado/mal formatado)
+        }
+    }
+
+    // Helper: aplica String apenas se não vier vazia
+    private void applyStringIfValid(String line, java.util.function.Consumer<String> setter) {
+        if (line == null) return;
+        line = line.trim();
+        if (line.isEmpty()) return;
+        setter.accept(line);
+    }
+
+    /**
+     * Guarda as configurações atuais em "Dados/config.txt".
+     * Formato (uma linha por campo), por ordem:
+     * 1) tempos consulta (baixa, media, urgente)
+     * 2) limites espera (verde->amarelo, amarelo->vermelho, vermelho->saida)
+     * 3) password
+     * 4) separador ficheiro
+     * 5) descanso (horasTrabalhoParaDescanso, tempoDescanso)
+     */
+    public void guardarConfiguracoes() throws IOException {
+        File f = new File(fullPath(NOME_FICHEIRO_CONFIG));
+
+        try (BufferedWriter bw = new BufferedWriter(
+                new OutputStreamWriter(new FileOutputStream(f, false), StandardCharsets.UTF_8))) {
+
+            // 1) Tempos de consulta
+            bw.write(String.valueOf(Configuracoes.getTempoConsultaBaixa()));
+            bw.newLine();
+            bw.write(String.valueOf(Configuracoes.getTempoConsultaMedia()));
+            bw.newLine();
+            bw.write(String.valueOf(Configuracoes.getTempoConsultaUrgente()));
+            bw.newLine();
+
+            // 2) Limites de espera
+            bw.write(String.valueOf(Configuracoes.getLimiteEsperaVerdeParaAmarelo()));
+            bw.newLine();
+            bw.write(String.valueOf(Configuracoes.getLimiteEsperaAmareloParaVermelho()));
+            bw.newLine();
+            bw.write(String.valueOf(Configuracoes.getLimiteEsperaVermelhoSaida()));
+            bw.newLine();
+
+            // 3) Password
+            bw.write(Configuracoes.getPassword() == null ? "" : Configuracoes.getPassword());
+            bw.newLine();
+
+            // 4) Separador
+            bw.write(Configuracoes.getSeparadorFicheiro() == null ? "" : Configuracoes.getSeparadorFicheiro());
+            bw.newLine();
+
+            // 5) Regras de descanso
+            bw.write(String.valueOf(Configuracoes.getHorasTrabalhoParaDescanso()));
+            bw.newLine();
+            bw.write(String.valueOf(Configuracoes.getTempoDescanso()));
+            bw.newLine();
+        }
+    }
+
+    /**
+     * Carrega configurações de "Dados/config.txt".
+     * Se faltar alguma linha (ficheiro antigo), mantém os defaults atuais.
+     * Se um número vier inválido, ignora essa linha e mantém o valor atual.
+     */
+    public void carregarConfiguracoes() {
+        File f = new File(fullPath(NOME_FICHEIRO_CONFIG));
+        if (!f.exists()) return;
+
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8))) {
+
+            // 1) Tempos
+            applyIntIfValid(readLineTrim(br), Configuracoes::setTempoConsultaBaixa);
+            applyIntIfValid(readLineTrim(br), Configuracoes::setTempoConsultaMedia);
+            applyIntIfValid(readLineTrim(br), Configuracoes::setTempoConsultaUrgente);
+
+            // 2) Limites
+            applyIntIfValid(readLineTrim(br), Configuracoes::setLimiteEsperaVerdeParaAmarelo);
+            applyIntIfValid(readLineTrim(br), Configuracoes::setLimiteEsperaAmareloParaVermelho);
+            applyIntIfValid(readLineTrim(br), Configuracoes::setLimiteEsperaVermelhoSaida);
+
+            // 3) Password
+            applyStringIfValid(readLineTrim(br), Configuracoes::setPassword);
+
+            // 4) Separador
+            applyStringIfValid(readLineTrim(br), Configuracoes::setSeparadorFicheiro);
+
+            // 5) Descanso
+            applyIntIfValid(readLineTrim(br), Configuracoes::setHorasTrabalhoParaDescanso);
+            applyIntIfValid(readLineTrim(br), Configuracoes::setTempoDescanso);
+
+        } catch (Exception e) {
+            System.out.println("⚠️ Erro ao carregar configurações (ficheiro pode estar desatualizado): " + e.getMessage());
+        }
+    }
 }
 

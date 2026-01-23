@@ -111,7 +111,7 @@ public class Calculos {
      * Atualiza o nível de urgência e devolve TRUE se houve alguma alteração.
      * Isto permite ao Menu saber se deve mostrar avisos ao utilizador.
      */
-    public boolean atualizarNiveisUrgencia(Utente[] utentes, int nUtentes) {
+    public static boolean atualizarNiveisUrgencia(Utente[] utentes, int nUtentes) {
         if (nUtentes == 0) return false;
 
         boolean houveAlteracao = false; // Começa a false
@@ -130,7 +130,7 @@ public class Calculos {
                     u.setNivelUrgencia(NivelUrgencia.AMARELO);
                     u.resetarTempoEspera();
 
-                    System.out.println("⚠️ NOTIFICAÇÃO: O utente " + u.getNome() + " passou para urgência AMARELO.");
+                    System.out.println("NOTIFICAÇÃO: O utente " + u.getNome() + " passou para urgência AMARELO.");
                     houveAlteracao = true;
                 }
             }
@@ -140,7 +140,7 @@ public class Calculos {
                     u.setNivelUrgencia(NivelUrgencia.VERMELHO);
                     u.resetarTempoEspera();
 
-                    System.out.println("🚨 NOTIFICAÇÃO: O utente " + u.getNome() + " passou para urgência VERMELHO.");
+                    System.out.println("NOTIFICAÇÃO: O utente " + u.getNome() + " passou para urgência VERMELHO.");
                     houveAlteracao = true;
                 }
                 // Lógica 3: Vermelho -> Saída

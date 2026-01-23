@@ -2,6 +2,7 @@ package Gestao;
 
                                 //linha 178 e 179 importantes
 
+import Controlador.Calculos;
 import Modelo.Especialidade;
 import Modelo.Medico;
 import Modelo.Sintoma;
@@ -489,4 +490,12 @@ public class GestaoHOSP {
         return out;
     }
 
+    /**
+     * Chama a lógica de cálculo para atualizar os níveis de urgência de todos os utentes
+     * com base no tempo de espera.
+     */
+    public boolean verificarAlteracoesUrgencia() {
+        // Passamos o array "cru" e a quantidade de utentes para o Controlador
+        return Calculos.atualizarNiveisUrgencia(this.utentes, this.nUtentes);
+    }
 }

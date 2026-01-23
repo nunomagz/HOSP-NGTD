@@ -7,6 +7,7 @@ import Modelo.Hospital;
 import Modelo.RelogioHospital;
 import Modelo.Utente;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Scanner;
 
@@ -739,25 +740,57 @@ public class Menu {
         do {
             limparEcra();
             System.out.println("╔══════════════════════════════════════════════════════════════╗");
-            System.out.println("║                         CONFIGURAÇÕES                        ║");
+            System.out.println("║                       CONFIGURAÇÕES                          ║");
             System.out.println("╠══════════════════════════════════════════════════════════════╣");
-            System.out.println("║  1. Alterar Caminho dos Ficheiros                            ║");
-            System.out.println("║  2. Alterar Tempos de Consulta                               ║");
-            System.out.println("║  3. Alterar Limites de Espera (Mudança de Nível)             ║");
-            System.out.println("║  4. Alterar Password                                         ║");
-            System.out.println("║  0. Voltar                                                   ║");
+            System.out.println("║ 1. Alterar Caminho dos Ficheiros                             ║");
+            System.out.println("║ 2. Alterar Tempos de Consulta                                ║");
+            System.out.println("║ 3. Alterar Limites de Espera (Mudança de Nível)              ║");
+            System.out.println("║ 4. Alterar Password                                          ║");
+            System.out.println("║ 5. Alterar Separador dos Ficheiros                           ║");
+            System.out.println("║ 6. Alterar Regras de Descanso (Médicos)                      ║");
+            System.out.println("║ 7. Listar Todas as Regras Atuais                             ║");
+            System.out.println("║ 0. Voltar                                                    ║");
             System.out.println("╚══════════════════════════════════════════════════════════════╝");
 
             opcao = lerInteiro("Opção: ");
 
             switch (opcao) {
                 case 1:
-                    // Lógica para String (Caminho)
                     System.out.print("Novo Caminho (Atual: " + Configuracoes.getCaminhoficheiro() + "): ");
                     String novoCaminho = scanner.nextLine().trim();
+
                     if (!novoCaminho.isEmpty()) {
-                        Configuracoes.setCaminhoficheiro(novoCaminho);
-                        System.out.println("Caminho atualizado!");
+                        // 1. Adicionar a barra final se faltar
+                        if (!novoCaminho.endsWith("/") && !novoCaminho.endsWith("\\")) {
+                            novoCaminho += "/";
+                        }
+
+                        // 2. Criar referências para a pasta antiga e nova
+                        File pastaAntiga = new File(Configuracoes.getCaminhoficheiro());
+                        File pastaNova = new File(novoCaminho);
+
+                        // 3. Verificar se a pasta antiga realmente existe
+                        if (pastaAntiga.exists()) {
+                            // Tenta MOVER (Renomear) a pasta
+                            boolean sucesso = pastaAntiga.renameTo(pastaNova);
+
+                            if (sucesso) {
+                                Configuracoes.setCaminhoficheiro(novoCaminho);
+                                System.out.println("Sucesso: A pasta foi movida de '" + pastaAntiga.getName() + "' para '" + pastaNova.getName() + "'.");
+                                try {
+                                    ficheiros.guardarConfiguracoes();
+                                } catch (IOException e) {
+                                    System.out.println("Erro ao atualizar ficheiro de config: " + e.getMessage());
+                                }
+                            } else {
+                                System.out.println("Erro: Não foi possível mover a pasta (verifique permissões ou se o nome já existe).");
+                            }
+                        } else {
+                            // Se a pasta antiga não existe (primeira vez a correr), apenas muda o caminho
+                            Configuracoes.setCaminhoficheiro(novoCaminho);
+                            System.out.println("Caminho alterado (a pasta antiga não existia para ser movida).");
+                        }
+
                     } else {
                         System.out.println("Mantido o caminho anterior.");
                     }
@@ -798,17 +831,121 @@ public class Menu {
 
                 case 4:
                     System.out.print("Nova Password (Enter para cancelar): ");
-                    String passe = scanner.nextLine().trim();
-                    if (!passe.isEmpty()) {
-                        Configuracoes.setPassword(passe);
-                        System.out.println("Password Atualizada!");
+                    String novaPasse = scanner.nextLine().trim();
+
+                    if (!novaPasse.isEmpty()) {
+                        System.out.println("Confirme a nova Password: ");
+                        String confirmacao = scanner.nextLine().trim();
+                        if (novaPasse.equals(confirmacao)) {
+                            Configuracoes.setPassword(novaPasse);
+                            System.out.println("Password Atualizada!");
+                        } else {
+                            System.out.println("Erro: As passwords não coincidem. Operação cancelada.");
+                        }
                     } else {
                         System.out.println("Password mantida.");
                     }
                     pausar();
                     break;
 
+                case 5:
+                    System.out.print("Novo Separador (Atual: " + Configuracoes.getSeparadorFicheiro() + "): ");
+                    String novoSep = scanner.nextLine().trim();
+
+                    if (!novoSep.isEmpty()) {
+                        // 1. Guardar o separador antigo (caso dê erro)
+                        String separadorAntigo = Configuracoes.getSeparadorFicheiro();
+
+                        try {
+                            // 2. Definir o novo separador na memória
+                            Configuracoes.setSeparadorFicheiro(novoSep);
+
+                            System.out.println("A converter ficheiros para o novo formato...");
+
+                            // 3. REESCREVER todos os dados (Médicos, Sintomas, etc) com o NOVO separador
+                            ficheiros.guardarTudo(gestao);
+
+                            // 4. Guardar a configuração
+                            ficheiros.guardarConfiguracoes();
+
+                            System.out.println("Sucesso! Separador alterado e ficheiros convertidos.");
+
+                        } catch (IOException e) {
+                            System.out.println("Erro grave ao converter ficheiros: " + e.getMessage());
+                            System.out.println("A reverter para o separador antigo...");
+                            Configuracoes.setSeparadorFicheiro(separadorAntigo);
+                        }
+                    } else {
+                        System.out.println("Mantido o anterior.");
+                    }
+                    pausar();
+                    break;
+
+                case 6:
+                    System.out.println("\n--- Regras de Descanso dos Médicos ---");
+
+                    int horasTrab = lerIntAlterar("Horas de trabalho seguidas antes do descanso", Configuracoes.getHorasTrabalhoParaDescanso());
+                    Configuracoes.setHorasTrabalhoParaDescanso(horasTrab);
+
+                    int tempoDesc = lerIntAlterar("Duração do descanso (unidades de tempo)", Configuracoes.getTempoDescanso());
+                    Configuracoes.setTempoDescanso(tempoDesc);
+
+                    System.out.println("Regras de descanso atualizadas!");
+                    pausar();
+                    break;
+
+                case 7:
+                    limparEcra();
+                    System.out.println("╔══════════════════════════════════════════════════════════════╗");
+                    System.out.println("║                  REGRAS ATUAIS DO SISTEMA                    ║");
+                    System.out.println("╠══════════════════════════════════════════════════════════════╣");
+
+                    System.out.println("FICHEIROS");
+                    System.out.println("   • Caminho:   " + Configuracoes.getCaminhoficheiro());
+                    System.out.println("   • Separador: " + Configuracoes.getSeparadorFicheiro());
+                    System.out.println("   • Medicos:   " + Configuracoes.getNomeFicheiroMedicos());
+                    System.out.println("   • Sintomas:  " + Configuracoes.getNomeFicheiroSintomas());
+                    System.out.println("   • Especialidades:  " + Configuracoes.getNomeFicheiroEspecialidade());
+                    System.out.println("--------------------------------------------------------------");
+
+                    System.out.println("TEMPOS DE CONSULTA (Unidades de Tempo)");
+                    System.out.println("   • Baixa:     " + Configuracoes.getTempoConsultaBaixa());
+                    System.out.println("   • Média:     " + Configuracoes.getTempoConsultaMedia());
+                    System.out.println("   • Urgente:   " + Configuracoes.getTempoConsultaUrgente());
+                    System.out.println("--------------------------------------------------------------");
+
+                    System.out.println("LIMITES DE ESPERA (Para subir de nível)");
+                    System.out.println("   • Verde -> Amarelo:    " + Configuracoes.getLimiteEsperaVerdeParaAmarelo());
+                    System.out.println("   • Amarelo -> Vermelho: " + Configuracoes.getLimiteEsperaAmareloParaVermelho());
+                    System.out.println("   • Vermelho -> Saída:   " + Configuracoes.getLimiteEsperaVermelhoSaida());
+                    System.out.println("--------------------------------------------------------------");
+
+                    System.out.println("REGRAS DE DESCANSO");
+                    System.out.println("   • Trabalha:  " + Configuracoes.getHorasTrabalhoParaDescanso() + " horas seguidas");
+                    System.out.println("   • Descansa:  " + Configuracoes.getTempoDescanso() + " unidades de tempo");
+                    System.out.println("--------------------------------------------------------------");
+
+                    System.out.println("PASSWORD");
+                    System.out.println("   • Password:  " + Configuracoes.getPassword());
+
+                    System.out.println("╚══════════════════════════════════════════════════════════════╝");
+                    pausar();
+                    break;
+
                 case 0:
+                    String resposta = lerString("Deseja guardar as novas configurações? (S/N): ");
+
+                    if (resposta.equalsIgnoreCase("S")) {
+                        try {
+                            System.out.println("A guardar configurações...");
+                            ficheiros.guardarConfiguracoes();
+                            System.out.println("Configurações guardadas!");
+                        } catch (IOException e) {
+                            System.out.println("Erro ao guardar: " + e.getMessage());
+                        }
+                    } else {
+                        System.out.println("Alterações descartadas (não serão lembradas na próxima vez).");
+                    }
                     break;
                 default:
                     System.out.println("\nOpção inválida!");
@@ -816,6 +953,7 @@ public class Menu {
             }
         } while (opcao != 0);
     }
+
 
     // --- MENU PARA SAIR ---
     private void menuSair () {

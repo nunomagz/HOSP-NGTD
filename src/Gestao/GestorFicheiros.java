@@ -35,6 +35,7 @@ public class GestorFicheiros {
      * Ordem importa por causa das validações.
      */
     public void carregarTudo(GestaoHOSP g) throws IOException {
+        carregarConfiguracoes();
         carregarEspecialidades(g);
         carregarMedicos(g);
         carregarSintomas(g);
@@ -266,10 +267,9 @@ public class GestorFicheiros {
      * 5) descanso (horasTrabalhoParaDescanso, tempoDescanso)
      */
     public void guardarConfiguracoes() throws IOException {
-        File f = new File(fullPath(NOME_FICHEIRO_CONFIG));
+        File f = new File("config.txt");
 
-        try (BufferedWriter bw = new BufferedWriter(
-                new OutputStreamWriter(new FileOutputStream(f, false), StandardCharsets.UTF_8))) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(f))) {
 
             // 1) Tempos de consulta
             bw.write(String.valueOf(Configuracoes.getTempoConsultaBaixa()));
@@ -300,6 +300,11 @@ public class GestorFicheiros {
             bw.newLine();
             bw.write(String.valueOf(Configuracoes.getTempoDescanso()));
             bw.newLine();
+
+            // 6) Caminho dos Ficheiros
+            String caminho = Configuracoes.getCaminhoficheiro();
+            bw.write(caminho == null ? "Dados/" : caminho);
+            bw.newLine();
         }
     }
 
@@ -309,11 +314,10 @@ public class GestorFicheiros {
      * Se um número vier inválido, ignora essa linha e mantém o valor atual.
      */
     public void carregarConfiguracoes() {
-        File f = new File(fullPath(NOME_FICHEIRO_CONFIG));
+        File f = new File("config.txt");
         if (!f.exists()) return;
 
-        try (BufferedReader br = new BufferedReader(
-                new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8))) {
+        try (BufferedReader br = new BufferedReader( new FileReader(f))) {
 
             // 1) Tempos
             applyIntIfValid(readLineTrim(br), Configuracoes::setTempoConsultaBaixa);
@@ -334,6 +338,9 @@ public class GestorFicheiros {
             // 5) Descanso
             applyIntIfValid(readLineTrim(br), Configuracoes::setHorasTrabalhoParaDescanso);
             applyIntIfValid(readLineTrim(br), Configuracoes::setTempoDescanso);
+
+            // 6) Caminho dos Ficheiros
+            applyStringIfValid(readLineTrim(br), Configuracoes::setCaminhoficheiro);
 
         } catch (Exception e) {
             System.out.println("⚠️ Erro ao carregar configurações (ficheiro pode estar desatualizado): " + e.getMessage());

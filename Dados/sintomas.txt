@@ -1,66 +1,65 @@
-Dor no peito;Vermelha;CARD
-Palpitações;Laranja;CARD
-Coração acelerado;Laranja;CARD
-Falta de ar ao esforço;Laranja;CARD
-Tonturas ao levantar;Laranja;CARD
-Desmaio súbito;Vermelha;CARD
-Inchaço nos tornozelos;Laranja;CARD
-Dor no peito irradiada para braço;Vermelha;CARD
-Pressão arterial muito alta;Laranja;CARD
-Batimentos irregulares;Laranja;CARD
-Cansaço extremo sem motivo;Laranja;CARD
-Suores frios repentinos;Vermelha;CARD
-Sensação de peso no peito;Laranja;CARD
-Dificuldade em respirar deitado;Laranja;CARD
-Febre alta persistente;Laranja;PEDI
-Vómitos repetidos;Laranja;PEDI
-Diarreia intensa;Laranja;PEDI
-Choro inconsolável;Laranja;PEDI
+Dor no peito;Vermelho;CARD
+Palpitações;Amarelo;CARD
+Coração acelerado;Amarelo;CARD
+Falta de ar ao esforço;Amarelo;CARD
+Tonturas ao levantar;Amarelo;CARD
+Desmaio súbito;Vermelho;CARD
+Inchaço nos tornozelos;Amarelo;CARD
+Dor no peito irradiada para braço;Vermelho;CARD
+Pressão arterial muito alta;Amarelo;CARD
+Batimentos irregulares;Amarelo;CARD
+Cansaço extremo sem motivo;Amarelo;CARD
+Suores frios repentinos;Vermelho;CARD
+Sensação de peso no peito;Amarelo;CARD
+Dificuldade em respirar deitado;Amarelo;CARD
+Febre alta persistente;Amarelo;PEDI
+Vómitos repetidos;Amarelo;PEDI
+Diarreia intensa;Amarelo;PEDI
+Choro inconsolável;Amarelo;PEDI
 Erupção cutânea súbita;Verde;PEDI
-Dificuldade em respirar;Vermelha;PEDI
+Dificuldade em respirar;Vermelho;PEDI
 Tosse persistente;Verde;PEDI
-Letargia incomum;Laranja;PEDI
-Convulsões;Vermelha;PEDI
-Não comer ou beber;Laranja;PEDI
-Desidratação;Laranja;PEDI
-Dores abdominais fortes;Laranja;PEDI
+Letargia incomum;Amarelo;PEDI
+Convulsões;Vermelho;PEDI
+Não comer ou beber;Amarelo;PEDI
+Desidratação;Amarelo;PEDI
+Dores abdominais fortes;Amarelo;PEDI
 Irritabilidade persistente;Verde;PEDI
-Manchas roxas sem explicação;Laranja;PEDI
-Chiar ao respirar;Laranja;PEDI
+Manchas roxas sem explicação;Amarelo;PEDI
+Chiar ao respirar;Amarelo;PEDI
 Dor no joelho;Verde;ORTO
 Dor nas costas;Verde;ORTO
-Fratura suspeita;Vermelha;ORTO
-Inchaço articular;Laranja;ORTO
-Dificuldade em mover um braço ou perna;Laranja;ORTO
+Fratura suspeita;Vermelho;ORTO
+Inchaço articular;Amarelo;ORTO
+Dificuldade em mover um braço ou perna;Amarelo;ORTO
 Dor no ombro;Verde;ORTO
 Entorses frequentes;Verde;ORTO
 Rigidez articular;Verde;ORTO
-Dor após queda;Laranja;ORTO
-Deformidade num membro;Vermelha;ORTO
+Dor após queda;Amarelo;ORTO
+Deformidade num membro;Vermelho;ORTO
 Espasmos musculares;Verde;ORTO
-Dor na anca ao andar;Laranja;ORTO
-Formigueiro num membro;Laranja;ORTO
+Dor na anca ao andar;Amarelo;ORTO
+Formigueiro num membro;Amarelo;ORTO
 Inflamação do tendão;Verde;ORTO
-Perda de força num membro;Laranja;ORTO
-Tonturas;Laranja;CARD;PEDI
-Dor torácica ao respirar;Vermelha;CARD;PEDI
-Falta de ar;Vermelha;CARD;PEDI
+Perda de força num membro;Amarelo;ORTO
+Tonturas;Amarelo;CARD;PEDI
+Dor torácica ao respirar;Vermelho;CARD;PEDI
+Falta de ar;Vermelho;CARD;PEDI
 Cansaço físico fácil;Verde;CARD;PEDI
-Taquicardia em repouso;Laranja;CARD;PEDI
-Dor muscular pós-esforço;Verde;PEDI;ORTO
-Dificuldade em caminhar;Laranja;PEDI;ORTO
-Queda com impacto;Laranja;PEDI;ORTO
+Taquicardia em repouso;Amarelo;CARD;PEDI
+Dificuldade em caminhar;Amarelo;PEDI;ORTO
+Queda com impacto;Amarelo;PEDI;ORTO
 Postura alterada;Verde;PEDI;ORTO
-Inchaço de membro;Laranja;PEDI;ORTO
-Dor no peito leve;Laranja;CARD;PEDI
-Edema generalizado;Laranja;CARD;PEDI
-Desmaio após exercício;Laranja;CARD;PEDI
+Inchaço de membro;Amarelo;PEDI;ORTO
+Dor no peito leve;Amarelo;CARD;PEDI
+Edema generalizado;Amarelo;CARD;PEDI
+Desmaio após exercício;Amarelo;CARD;PEDI
 Dores de crescimento;Verde;PEDI;ORTO
-Batimento irregular percebido;Laranja;CARD;PEDI
-Fraqueza num membro;Laranja;ORTO;PEDI
-Palidez súbita;Laranja;CARD;PEDI
-Cansaço após esforço mínimo;Laranja;CARD;ORTO
-Dor torácica após queda;Laranja;CARD;ORTO
+Batimento irregular percebido;Amarelo;CARD;PEDI
+Fraqueza num membro;Amarelo;ORTO;PEDI
+Palidez súbita;Amarelo;CARD;PEDI
+Cansaço após esforço mínimo;Amarelo;CARD;ORTO
+Dor torácica após queda;Amarelo;CARD;ORTO
 Dificuldade em levantar peso;Verde;ORTO;CARD
 Dores difusas nos membros;Verde;PEDI;ORTO
-Dor ao respirar fundo;Laranja;CARD;ORTO
+Dor ao respirar fundo;Amarelo;CARD;ORTO

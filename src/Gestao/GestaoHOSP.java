@@ -429,7 +429,30 @@ public class GestaoHOSP {
         }
         utentes = novo;
     }
+// Em GestaoHOSP.java
 
+    /**
+     * Metodo exclusivo para carregar dados do ficheiro (restaura o estado anterior).
+     */
+    public void carregarUtenteDoFicheiro(int numero, String nome, int idade, String sintoma, String nivel, int tempoEspera) {
+        ensureCapUtentes();
+
+        Utente u = new Utente(numero, nome, idade);
+        u.setSintoma(sintoma);
+        u.setNivelUrgencia(nivel);
+
+        // Precisas de garantir que a classe Utente tem um setter para o tempoEspera,
+        // ou fazes um ciclo: for(int i=0; i<tempoEspera; i++) u.incrementarTempoEspera();
+        // O ideal é adicionar setTempoEsperaNivel(int t) na classe Utente.
+        // u.setTempoEsperaNivel(tempoEspera);
+
+        utentes[nUtentes++] = u;
+
+        // Atualizar o contador automático para não gerar números repetidos
+        if (numero >= proximoNumeroUtente) {
+            proximoNumeroUtente = numero + 1;
+        }
+    }
     // Helpers
 
     private boolean vazio(String s) {

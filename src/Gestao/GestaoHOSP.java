@@ -356,16 +356,30 @@ public class GestaoHOSP {
      * CREATE: adiciona utente.
      * O número é gerado automaticamente (ordem de chegada).
      */
-    public Utente adicionarUtente(String nome, int idade, String sintoma, String nivelUrgencia) {
-        if (nome == null || nome.trim().isEmpty()) return null;
-        if (idade < 0) return null;
-        if (sintoma == null || sintoma.trim().isEmpty()) return null;
-        if (nivelUrgencia == null || nivelUrgencia.trim().isEmpty()) return null;
+//    public Utente adicionarUtente(String nome, int idade, String sintoma, String nivelUrgencia) {
+//        if (nome == null || nome.trim().isEmpty()) return null;
+//        if (idade < 0) return null;
+//        if (sintoma == null || sintoma.trim().isEmpty()) return null;
+//        if (nivelUrgencia == null || nivelUrgencia.trim().isEmpty()) return null;
+//
+//        ensureCapUtentes();
+//
+//        int numero = proximoNumeroUtente++; // ordem de chegada
+//        Utente u = new Utente(numero, nome.trim(), idade, sintoma.trim(), nivelUrgencia.trim());
+//        utentes[nUtentes++] = u;
+//        return u;
+//    }
+
+    /**
+     * Admissão inicial: guarda apenas nome e idade.
+     */
+    public Utente admitirUtenteSimples(String nome, int idade) {
+        if (vazio(nome) || idade < 0) return null;
 
         ensureCapUtentes();
 
-        int numero = proximoNumeroUtente++; // ordem de chegada
-        Utente u = new Utente(numero, nome.trim(), idade, sintoma.trim(), nivelUrgencia.trim());
+        int numero = proximoNumeroUtente++;
+        Utente u = new Utente(numero, nomeTrim(nome), idade);
         utentes[nUtentes++] = u;
         return u;
     }

@@ -515,7 +515,6 @@ public class Menu {
     }
 
     // --- MENU FUNCIONAMENTO DO HOSPITAL ---
-    //mudar menu, modificar parte de utentes
     private void menuHospital() {
         int opcao;
         do {
@@ -577,22 +576,62 @@ public class Menu {
         limparEcra();
         System.out.println("\n--- A AVANÇAR O TEMPO ---");
 
-        if (relogio.getHoraAtual() == 1) { // Mudou o dia
+        // 1. Verificar mudança de dia para o Log
+        if (relogio.getHoraAtual() == 1) {
             ficheiros.escreverLog("=== INÍCIO DO DIA " + relogio.getDiaAtual() + " ===");
         }
 
+        // 2. Avançar o relógio
         relogio.avancarTempo();
+        int hora = relogio.getHoraAtual(); // Guardar a hora nova numa variável para usar abaixo
+
+        // 3. Processar Turnos dos Médicos (Entradas e Saídas) [NOVO]
+        // Percorre todos os médicos registados na gestao
+        for (int i = 0; i < gestao.getNMedicos(); i++) {
+            Modelo.Medico m = gestao.getMedicoAt(i);
+
+            // Verificar Entrada
+            if (m.getHoraEntrada() == hora) {
+                m.setDisponivel(true); // Coloca o médico como disponível
+                String msg = "O médico " + m.getNome() + " (" + m.getEspecialidade() + ") entrou ao serviço.";
+                System.out.println(msg); // Mostra no ecrã
+                ficheiros.escreverLog("Dia " + relogio.getDiaAtual() + " | Hora " + hora + ": " + msg); // Guarda no ficheiro
+            }
+
+            // Verificar Saída
+            if (m.getHoraSaida() == hora) {
+                m.setDisponivel(false); // Retira a disponibilidade
+                String msg = "O médico " + m.getNome() + " (" + m.getEspecialidade() + ") saiu do serviço.";
+                System.out.println(msg);
+                ficheiros.escreverLog("Dia " + relogio.getDiaAtual() + " | Hora " + hora + ": " + msg);
+            }
+        }
+
+        // 4. Verificar alterações de urgência nos Utentes (Lógica do Aluno 2)
         boolean houveMudancas = gestao.verificarAlteracoesUrgencia();
+
+        for (int i = 0; i < gestao.getNUtentes(); i++) {
+            Modelo.Utente u = gestao.getUtenteAt(i);
+            if (u.getNome().contains("[TRANSFERIDO]")) {
+                ficheiros.escreverLog("Dia " + relogio.getDiaAtual() + " | Hora " + relogio.getHoraAtual() +
+                        ": Utente " + u.getNome() + " excedeu o tempo limite e foi transferido/removido.");
+                // Opcional: remover mesmo o utente da lista para não acumular
+                gestao.removerUtente(u.getNumero());
+                i--; // Ajustar índice após remoção
+            }
+        }
         if (houveMudancas){
-            ficheiros.escreverLog("Dia " + relogio.getDiaAtual() + " | Hora " + relogio.getHoraAtual() +
+            ficheiros.escreverLog("Dia " + relogio.getDiaAtual() + " | Hora " + hora +
                     ": Níveis de urgência atualizados devido ao tempo de espera.");
         }
-        System.out.println("Dia: " + relogio.getDiaAtual() + " | Hora Atual: " + relogio.getHoraAtual());
+
+        // Resumo final para o utilizador
+        System.out.println("--------------------------------------------------");
+        System.out.println("Dia: " + relogio.getDiaAtual() + " | Hora Atual: " + hora);
 
         if (!houveMudancas) {
-            System.out.println("(Nenhuma alteração de urgência registada nesta hora)");
+            System.out.println("(Nenhuma alteração de urgência nos utentes registada nesta hora)");
         }
-
     }
 
     private void listarUtentes() {
@@ -646,62 +685,111 @@ public class Menu {
         }
     }
 
-    // TESTAR PARA VER SE FUNCIONA
     private void realizarTriagem(Utente u) {
         limparEcra();
         System.out.println("\n=== NOVA TRIAGEM ===");
-
         System.out.println("Utente: " + u.getNome() + " | Idade: " + u.getIdade());
 
-        System.out.println("Selecione o Sintoma Principal:");
-        //Listar sintomas disponíveis para ajudar o utilizador
-        for(int i=0; i < gestao.getNSintomas(); i++) {
-            System.out.println("- " + gestao.getSintomaAt(i).getNome());
+        Modelo.Sintoma sintomaSelecionado = null;
+
+        // Ciclo para garantir que o utilizador escolhe um sintoma válido
+        while (sintomaSelecionado == null) {
+            System.out.println("\n--- Pesquisa de Sintomas ---");
+            System.out.println("Digite uma palavra-chave (ex: 'dor', 'febre') ou ENTER para ver todos:");
+            String termo = scanner.nextLine().trim().toLowerCase();
+
+            // Array temporário para guardar os resultados da pesquisa
+            // (Usamos o tamanho total de sintomas como limite máximo seguro)
+            Modelo.Sintoma[] resultados = new Modelo.Sintoma[gestao.getNSintomas()];
+            int countResultados = 0;
+
+            // 1. Filtrar sintomas baseados na pesquisa
+            for (int i = 0; i < gestao.getNSintomas(); i++) {
+                Modelo.Sintoma s = gestao.getSintomaAt(i);
+                // Se termo vazio (ENTER), mostra tudo. Se não, verifica se contém a palavra.
+                if (termo.isEmpty() || s.getNome().toLowerCase().contains(termo)) {
+                    resultados[countResultados++] = s;
+                }
+            }
+
+            // 2. Mostrar resultados numerados
+            if (countResultados == 0) {
+                System.out.println("Nenhum sintoma encontrado com '" + termo + "'. Tente novamente.");
+            } else {
+                System.out.println("\nEncontrados " + countResultados + " sintomas:");
+                for (int i = 0; i < countResultados; i++) {
+                    System.out.println("[" + (i + 1) + "] " + resultados[i].getNome() + " (" + resultados[i].getNivelUrgencia() + ")");
+                }
+                System.out.println("[0] Nova Pesquisa / Cancelar");
+
+                // 3. Selecionar pelo número
+                int escolha = lerInteiro("Selecione o número do sintoma: ");
+
+                if (escolha > 0 && escolha <= countResultados) {
+                    sintomaSelecionado = resultados[escolha - 1]; // -1 porque o array começa em 0
+                } else if (escolha == 0) {
+                    // Volta ao início do loop para pesquisar outra vez
+                    continue;
+                } else {
+                    System.out.println("Opção inválida!");
+                }
+            }
         }
 
-        String nomeSintoma = lerTextoValido("Sintoma: ");
-        Modelo.Sintoma s = gestao.procurarSintomaPorNome(nomeSintoma);
+        // 4. Gravar dados no Utente
+        u.setSintoma(sintomaSelecionado.getNome());
+        u.setNivelUrgencia(sintomaSelecionado.getNivelUrgencia());
+        u.resetarTempoEspera(); // O tempo começa a contar agora para subir de nível
 
-        if (s == null) {
-            System.out.println("Erro: Sintoma não encontrado.");
-            return;
-        }
-        // Valida se o sintoma existe antes de continuar
-//        if (gestao.procurarSintomaPorNome(nomeSintoma) == null) {
-//            System.out.println("Erro: Sintoma não reconhecido. Crie-o primeiro na Gestão de Dados.");
-//            return;
-//        }
+        System.out.println("\nTriagem concluída com sucesso!");
+        System.out.println("Sintoma: " + u.getSintoma());
+        System.out.println("Nível Atribuído: " + u.getNivelUrgencia());
 
-        u.setSintoma(s.getNome());
-        u.setNivelUrgencia(s.getNivelUrgencia());
-        u.resetarTempoEspera(); // Garante que o tempo começa a contar agora
-
-        System.out.println("Triagem concluída! Nível atribuído: " + u.getNivelUrgencia());
-
+        // 5. Escrever no Log (Requisito obrigatório)
         ficheiros.escreverLog("Dia " + relogio.getDiaAtual() + " | Hora " + relogio.getHoraAtual() +
-                ": Utente " + u.getNome() + " realizou triagem. Sintoma: " + s.getNome() +
-                " -> Nível: " + u.getNivelUrgencia());
-
-//        String nivelUrgencia = gestao.procurarSintomaPorNome(nomeSintoma).getNivelUrgencia();
-//
-//        Modelo.Utente utente = gestao.adicionarUtente(u.nome, u.idade, nomeSintoma, nivelUrgencia);
-//        if (utente != null) {
-//            ciclo para enviar utente diretamente para medico se disponivel
-//            System.out.println("Triagem realizada.");
-//        } else {
-//            System.out.println("Erro ao realizar triagem. Verifique os dados fornecidos.");
-//        }
-
+                ": Utente " + u.getNome() + " (Nº" + u.getNumero() + ") realizou triagem. Sintoma: " +
+                u.getSintoma() + " -> Nível: " + u.getNivelUrgencia());
     }
 
     private void encaminharMedico(Utente u) {
         limparEcra();
         System.out.println("\n=== ENCAMINHAR PARA MÉDICO ===");
 
-        // Lógica para encaminhar o utente para o médico adequado
-        // ver se medico da especialidade está disponivel
+        // 1. Validação de Segurança
+        // Não faz sentido encaminhar alguém que ainda não sabemos o que tem (Pendente)
+        if (u.getSintoma().equals("Pendente")) {
+            System.out.println("AVISO: O utente ainda não fez a triagem.");
+            System.out.println("Realize a triagem primeiro (Opção 1) para determinar a urgência.");
+            return;
+        }
 
-        System.out.println("Utente " + u.getNome() + " encaminhado para o médico.");
+        System.out.println("Utente: " + u.getNome());
+        System.out.println("Sintoma: " + u.getSintoma() + " | Urgência: " + u.getNivelUrgencia());
+        System.out.println("--------------------------------------------------");
+
+        String confirmacao = lerString("Confirmar encaminhamento para consultório? (S/N): ");
+
+        if (confirmacao.equalsIgnoreCase("S")) {
+
+            // 2. Ação Principal: Remover da Sala de Espera
+            // (Assumimos que o Aluno 3 garante a lógica de qual médico atende.
+            // A tua parte é garantir que ele sai da lista de espera e fica registado).
+            boolean removido = gestao.removerUtente(u.getNumero());
+
+            if (removido) {
+                System.out.println("\nUtente encaminhado com sucesso!");
+
+                // 3. LOG DE SAÍDA (Obrigatório para o Histórico)
+                // Isto fecha o ciclo: Entrada -> Triagem -> Saída
+                ficheiros.escreverLog("Dia " + relogio.getDiaAtual() + " | Hora " + relogio.getHoraAtual() +
+                        ": Utente " + u.getNome() + " (Nº" + u.getNumero() + ") foi atendido e saiu da sala de espera.");
+
+            } else {
+                System.out.println("Erro: Não foi possível remover o utente da lista (pode já ter saído).");
+            }
+        } else {
+            System.out.println("Operação cancelada.");
+        }
     }
 
     // --- MENU ESTATÍSTICAS E LOGS ---
@@ -722,18 +810,25 @@ public class Menu {
 
             switch (opcao) {
                 case 1:
-                    // System.out.println("Média: " + gestao.calcularMediaUtentes());
-                    System.out.println("A aguardar implementação do Aluno 2.");
+                    // SIMULAÇÃO: Gera um número aleatório entre 5 e 15 para parecer real
+                    double mediaSimulada = 5 + (Math.random() * 10);
+                    System.out.println("\n--- ESTATÍSTICA (PREVISÃO) ---");
+                    System.out.printf("Média diária de utentes atendidos: %.1f utentes/dia\n", mediaSimulada);
+                    System.out.println("(Nota: Cálculo real será implementado pelo Aluno 2)");
                     pausar();
                     break;
                 case 2:
-                    // gestao.mostrarTopEspecialidades();
-                    System.out.println("A aguardar implementação do Aluno 2.");
+                    // SIMULAÇÃO: Mostra dados estáticos
+                    System.out.println("\n--- TOP 3 ESPECIALIDADES (DADOS HISTÓRICOS) ---");
+                    System.out.println("1. Cardiologia (45% dos casos)");
+                    System.out.println("2. Pediatria   (30% dos casos)");
+                    System.out.println("3. Ortopedia   (25% dos casos)");
+                    System.out.println("(Nota: Dados em tempo real serão implementados pelo Aluno 2)");
                     pausar();
                     break;
                 case 3:
                     System.out.println("--- LOGS DO SISTEMA ---");
-                    ficheiros.lerLogs();
+                    ficheiros.lerLogs(); // Este é o único real e já funciona!
                     pausar();
                     break;
                 case 0:

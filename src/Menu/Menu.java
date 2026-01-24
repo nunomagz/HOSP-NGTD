@@ -582,10 +582,17 @@ public class Menu {
         }
 
         relogio.avancarTempo();
+        boolean houveMudancas = gestao.verificarAlteracoesUrgencia();
+        if (houveMudancas){
+            ficheiros.escreverLog("Dia " + relogio.getDiaAtual() + " | Hora " + relogio.getHoraAtual() +
+                    ": Níveis de urgência atualizados devido ao tempo de espera.");
+        }
         System.out.println("Dia: " + relogio.getDiaAtual() + " | Hora Atual: " + relogio.getHoraAtual());
 
-        System.out.println("O tempo avançou. Médicos atenderam doentes e altas foram dadas.");
-        System.out.println("(Nota: As notificações aparecerão aqui quando o Aluno 3 terminar a lógica)");
+        if (!houveMudancas) {
+            System.out.println("(Nenhuma alteração de urgência registada nesta hora)");
+        }
+
     }
 
     private void listarUtentes() {

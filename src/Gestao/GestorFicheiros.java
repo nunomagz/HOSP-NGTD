@@ -36,6 +36,7 @@ public class GestorFicheiros {
         carregarEspecialidades(g);
         carregarMedicos(g);
         carregarSintomas(g);
+        carregarUtentes(g);
     }
 
     /**
@@ -45,6 +46,7 @@ public class GestorFicheiros {
         guardarEspecialidades(g);
         guardarMedicos(g);
         guardarSintomas(g);
+        guardarUtentes(g);
     }
 
     // ---------------- ESPECIALIDADES ----------------

@@ -566,6 +566,8 @@ public class Menu {
 
         if (u != null) {
             System.out.println("Utente admitido com sucesso! Número: " + u.getNumero());
+            ficheiros.escreverLog("Dia " + relogio.getDiaAtual() + " | Hora " + relogio.getHoraAtual() +
+                    ": Utente " + u.getNome() + " (Nº" + u.getNumero() + ") deu entrada no hospital.");
         } else {
             System.out.println("Erro ao admitir utente.");
         }
@@ -574,6 +576,10 @@ public class Menu {
     private void avancarTempo() {
         limparEcra();
         System.out.println("\n--- A AVANÇAR O TEMPO ---");
+
+        if (relogio.getHoraAtual() == 1) { // Mudou o dia
+            ficheiros.escreverLog("=== INÍCIO DO DIA " + relogio.getDiaAtual() + " ===");
+        }
 
         relogio.avancarTempo();
         System.out.println("Dia: " + relogio.getDiaAtual() + " | Hora Atual: " + relogio.getHoraAtual());
@@ -665,6 +671,10 @@ public class Menu {
 
         System.out.println("Triagem concluída! Nível atribuído: " + u.getNivelUrgencia());
 
+        ficheiros.escreverLog("Dia " + relogio.getDiaAtual() + " | Hora " + relogio.getHoraAtual() +
+                ": Utente " + u.getNome() + " realizou triagem. Sintoma: " + s.getNome() +
+                " -> Nível: " + u.getNivelUrgencia());
+
 //        String nivelUrgencia = gestao.procurarSintomaPorNome(nomeSintoma).getNivelUrgencia();
 //
 //        Modelo.Utente utente = gestao.adicionarUtente(u.nome, u.idade, nomeSintoma, nivelUrgencia);
@@ -716,8 +726,7 @@ public class Menu {
                     break;
                 case 3:
                     System.out.println("--- LOGS DO SISTEMA ---");
-                    // DataIO.lerLogs(); ou similar
-                    System.out.println("Ficheiro de logs não encontrado.");
+                    ficheiros.lerLogs();
                     pausar();
                     break;
                 case 0:

@@ -1,10 +1,7 @@
 package Gestao;
 
 import Configuracoes.Configuracoes;
-import Modelo.Especialidade;
-import Modelo.Medico;
-import Modelo.NivelUrgencia;
-import Modelo.Sintoma;
+import Modelo.*;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -344,6 +341,111 @@ public class GestorFicheiros {
 
         } catch (Exception e) {
             System.out.println("⚠️ Erro ao carregar configurações (ficheiro pode estar desatualizado): " + e.getMessage());
+        }
+    }
+
+// ---------------- LOGS / HISTÓRICO ----------------Nuno
+
+    /**
+     * Escreve uma mensagem no ficheiro de logs com a data/hora do sistema ou dia/hora da simulação.
+     * O append = true garante que não apagamos o histórico antigo.
+     */
+    public void escreverLog(String mensagem) {
+        File f = new File(Configuracoes.getCaminhoficheiro() + "logs.txt");
+
+        // Tenta criar o ficheiro se não existir
+        try {
+            if (!f.exists()) {
+                f.createNewFile();
+            }
+
+            try (BufferedWriter bw = new BufferedWriter(new FileWriter(f, true))) { // true = append
+                bw.write(mensagem);
+                bw.newLine();
+            }
+        } catch (IOException e) {
+            System.out.println("Erro ao escrever no log: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Lê o conteúdo do ficheiro de logs para mostrar na consola.
+     */
+    public void lerLogs() {
+        File f = new File(Configuracoes.getCaminhoficheiro() + "logs.txt");
+        if (!f.exists()) {
+            System.out.println("Ainda não existem registos de histórico.");
+            return;
+        }
+
+        try (BufferedReader br = new BufferedReader(new FileReader(f))) {
+            String linha;
+            System.out.println("--- INÍCIO DO HISTÓRICO ---");
+            while ((linha = br.readLine()) != null) {
+                System.out.println(linha);
+            }
+            System.out.println("--- FIM DO HISTÓRICO ---");
+        } catch (IOException e) {
+            System.out.println("Erro ao ler logs: " + e.getMessage());
+        }
+    }
+
+    // ---------------- UTENTES ----------------Nuno
+
+    public void guardarUtentes(GestaoHOSP g) throws IOException {
+        File f = new File(fullPath("utentes.txt"));
+
+        try (BufferedWriter bw = new BufferedWriter(
+                new OutputStreamWriter(new FileOutputStream(f, false), StandardCharsets.UTF_8))) {
+
+            for (int i = 0; i < g.getNUtentes(); i++) {
+                Utente u = g.getUtenteAt(i);
+
+                // Se o sintoma ou nível forem nulos (ainda não fez triagem), guardamos como "null" ou string vazia
+                String sintoma = (u.getSintoma() == null) ? "Pendente" : u.getSintoma();
+                String nivel = (u.getNivelUrgencia() == null) ? "A aguardar" : u.getNivelUrgencia();
+
+                bw.write(u.getNumero() + Configuracoes.getSeparadorFicheiro() +
+                        u.getNome() + Configuracoes.getSeparadorFicheiro() +
+                        u.getIdade() + Configuracoes.getSeparadorFicheiro() +
+                        sintoma + Configuracoes.getSeparadorFicheiro() +
+                        nivel + Configuracoes.getSeparadorFicheiro() +
+                        u.getTempoEsperaNivel());
+                bw.newLine();
+            }
+        }
+    }
+
+    public void carregarUtentes(GestaoHOSP g) throws IOException {
+        File f = new File(fullPath("utentes.txt"));
+        if (!f.exists()) return;
+
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8))) {
+
+            String line;
+            while ((line = br.readLine()) != null) {
+                line = line.trim();
+                if (line.isEmpty()) continue;
+
+                String[] p = split(line);
+                if (p.length < 6) continue; // Precisa de pelo menos 6 campos
+
+                try {
+                    int numero = Integer.parseInt(p[0].trim());
+                    String nome = p[1].trim();
+                    int idade = Integer.parseInt(p[2].trim());
+                    String sintoma = p[3].trim();
+                    String nivel = p[4].trim();
+                    int tempo = Integer.parseInt(p[5].trim());
+
+                    // Usamos um metodo especial na GestaoHOSP para carregar (ver passo seguinte)
+                    g.carregarUtenteDoFicheiro(numero, nome, idade, sintoma, nivel, tempo);
+
+                } catch (Exception e) {
+                    System.out.println("⚠️ Erro ao ler utente: " + line);
+                }
+            }
         }
     }
 }

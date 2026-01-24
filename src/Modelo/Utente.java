@@ -70,6 +70,14 @@ public class Utente {
     public int getTempoEsperaNivel() {
         return tempoEsperaNivel;
     }
+    public void setTempoEsperaNivel(int tempoEsperaNivel) {
+        if (tempoEsperaNivel >= 0) {
+            this.tempoEsperaNivel = tempoEsperaNivel;
+        } else {
+            // Proteção simples: se vier negativo do ficheiro, assume 0
+            this.tempoEsperaNivel = 0;
+        }
+    }
 
     public void incrementarTempoEspera() {
         this.tempoEsperaNivel++;

@@ -498,4 +498,40 @@ public class GestaoHOSP {
         // Passamos o array "cru" e a quantidade de utentes para o Controlador
         return Calculos.atualizarNiveisUrgencia(this.utentes, this.nUtentes);
     }
+
+
+    public Sintoma[] pesquisarSintomas(String termo) {
+        Sintoma[] resultados = new Sintoma[nSintomas];
+        int count = 0;
+        String termoMin = termo.toLowerCase();
+
+        for (int i = 0; i < nSintomas; i++){
+            if (termo.isEmpty() || sintomas[i].getNome().toLowerCase().contains(termoMin)) {
+                resultados[count++] = sintomas[i];
+            }
+        }
+        Sintoma[] finalres = new Sintoma[count];
+        System.arraycopy(resultados, 0,finalres,0,count);
+        return finalres;
+    }
+
+    public String[] verificarTurnosMedicos(int hora) {
+        String[] mensagens = new String[nMedicos * 2];
+        int count = 0;
+
+        for (int i = 0; i < nMedicos; i++) {
+            Medico m = medicos[i];
+            if (m.getHoraEntrada() == hora) {
+                m.setDisponivel(true);
+                mensagens[count++] = "ENTROU: Dr(a) " + m.getNome() + " (" + m.getEspecialidade() + ")";
+            }
+            if (m.getHoraSaida() == hora) {
+                m.setDisponivel(false);
+                mensagens[count++] = "SAIU: Dr(a) " + m.getNome();
+            }
+        }
+        String[] resultadoFinal = new String[count];
+        System.arraycopy(mensagens,0,resultadoFinal,0,count);
+        return resultadoFinal;
+    }
 }

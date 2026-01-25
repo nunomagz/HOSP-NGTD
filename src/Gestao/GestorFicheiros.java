@@ -346,16 +346,49 @@ public class GestorFicheiros {
         }
     }
 
+    /**
+     * Tenta alterar o diretório onde os ficheiros de dados são guardados.
+     * Verifica se a pasta antiga existe e tenta movê-la (renomear) para o novo caminho.
+     * Se a pasta antiga não existir, apenas atualiza a configuração para o novo caminho.
+     * @param novoCaminho O caminho para a nova pasta de dados.
+     * @return true se a alteração foi bem sucedida, false caso contrário.
+     */
+    public boolean mudarDiretorioDados(String novoCaminho) {
+        if (novoCaminho.isEmpty()) return false;
+
+        if (!novoCaminho.endsWith("/") && !novoCaminho.endsWith("\\")) {
+            novoCaminho +="/";
+        }
+
+        File pastaAntiga = new File(Configuracoes.getCaminhoficheiro());
+        File pastaNova = new File(novoCaminho);
+
+        if (pastaAntiga.exists()) {
+            boolean sucesso = pastaAntiga.renameTo(pastaNova);
+            if (sucesso) {
+                Configuracoes.setCaminhoficheiro(novoCaminho);
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            Configuracoes.setCaminhoficheiro(novoCaminho);
+            return true;
+        }
+    }
+
 // ---------------- LOGS / HISTÓRICO ----------------Nuno
 
     /**
-     * Escreve uma mensagem no ficheiro de logs com a data/hora do sistema ou dia/hora da simulação.
-     * O append = true garante que não apagamos o histórico antigo.
+     * Escreve uma mensagem no ficheiro de histórico (logs.txt).
+     * O metodo utiliza o modo 'append' (acrescentar) para não apagar registos anteriores.
+     * Se o ficheiro não existir, é criado automaticamente.
+     *
+     * @param mensagem A linha de texto a gravar no histórico.
      */
     public void escreverLog(String mensagem) {
         File f = new File(Configuracoes.getCaminhoficheiro() + "logs.txt");
 
-        // Tenta criar o ficheiro se não existir
         try {
             if (!f.exists()) {
                 f.createNewFile();
@@ -371,7 +404,8 @@ public class GestorFicheiros {
     }
 
     /**
-     * Lê o conteúdo do ficheiro de logs para mostrar na consola.
+     * Lê e apresenta na consola o conteúdo do ficheiro de histórico (logs.txt)
+     * Utilizado para consulta de eventos passados no menu Estatísticas.
      */
     public void lerLogs() {
         File f = new File(Configuracoes.getCaminhoficheiro() + "logs.txt");
@@ -445,7 +479,7 @@ public class GestorFicheiros {
                     g.carregarUtenteDoFicheiro(numero, nome, idade, sintoma, nivel, tempo);
 
                 } catch (Exception e) {
-                    System.out.println("⚠️ Erro ao ler utente: " + line);
+                    System.out.println("Erro ao ler utente: " + line);
                 }
             }
         }

@@ -5,12 +5,18 @@ import Gestao.GestorFicheiros;
 import Gestao.GestaoHOSP;
 import Modelo.Hospital;
 import Modelo.RelogioHospital;
+import Modelo.Sintoma;
 import Modelo.Utente;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.SQLOutput;
 import java.util.Scanner;
 
+/**
+ * Classe Menu onde se inicializa os componentes principais (menus, gestão)
+ * Trabalho realizado pelo grupo HOSP-NGTD
+ */
 public class Menu {
     private GestaoHOSP gestao;
     private GestorFicheiros ficheiros;
@@ -37,7 +43,7 @@ public class Menu {
         }
         menuInicial();
     }
-    // --- MENU INICIAL ---
+    /** --- MENU INICIAL --- */
     public void menuInicial(){
         int opcao;
         do {
@@ -79,7 +85,7 @@ public class Menu {
         } while (opcao != 0);
     }
 
-    // --- MENU GESTÃO DE DADOS ---
+    /** --- MENU GESTÃO DE DADOS --- */
     public void menuGestaoDados(){
 
         if(!autenticarAdmin()) {
@@ -121,7 +127,7 @@ public class Menu {
         } while (opcao != 0);
     }
 
-    // --- MENU GESTÃO DE MÉDICOS ---
+    /** --- MENU GESTÃO DE MÉDICOS --- */
     private void menuGerirMedicos() {
         int opcao;
         do {
@@ -166,8 +172,8 @@ public class Menu {
 
     private void adicionarMedico(){
         System.out.println("=== ADICIONAR MÉDICO ===\n");
-        String nome = lerTextoValido("Nome do Médico: ");
-        String codEsp = lerTextoValido("Código da Especíalidade (ex: CARD): ").toUpperCase();
+        String nome = lerString("Nome do Médico: ");
+        String codEsp = lerString("Código da Especíalidade (ex: CARD): ").toUpperCase();
         int entrada = lerInteiro("Hora de Entrada (0-23): ");
         int saida = lerInteiro("Hora de Saida (0-23): ");
         int salario = lerInteiro("Salário/Hora: ");
@@ -194,7 +200,7 @@ public class Menu {
 
     private void alterarMedico(){
         System.out.println("=== AlTERAR MÉDICO ===\n");
-        String nome = lerTextoValido("Nome do Médico: ");
+        String nome = lerString("Nome do Médico: ");
 
         if (gestao.procurarMedicoPorNome(nome) == null) {
             System.out.println("Medico não encontrado.");
@@ -255,7 +261,7 @@ public class Menu {
     private void removerMedico(){
 
         System.out.println("=== REMOVER MÉDICO ===\n");
-        String nome = lerTextoValido("Nome do medico a remover: ");
+        String nome = lerString("Nome do medico a remover: ");
 
         String confirmacao = lerString("Tem a certeza? (S/N):");
         if (!confirmacao.equalsIgnoreCase("S")) {
@@ -271,7 +277,7 @@ public class Menu {
         }
     }
 
-    // --- MENU GESTÃO DE ESPECIALIDADES ---
+    /**--- MENU GESTÃO DE ESPECIALIDADES ---*/
     private void menuGerirEspecialidades() {
         int opcao;
         do {
@@ -316,8 +322,8 @@ public class Menu {
 
     private void adicionarEspecialidade() {
         System.out.println("\n=== ADICIONAR ESPECIALIDADE ===");
-        String codigo = lerTextoValido("Código (ex: CARD): ").toUpperCase();
-        String nome = lerTextoValido("Nome (ex: Cardiologia): ");
+        String codigo = lerString("Código (ex: CARD): ").toUpperCase();
+        String nome = lerString("Nome (ex: Cardiologia): ");
 
         boolean sucesso = gestao.adicionarEspecialidade(codigo, nome);
 
@@ -341,7 +347,7 @@ public class Menu {
 
     private void alterarEspecialidade() {
         System.out.println("\n=== ALTERAR ESPECIALIDADE ===");
-        String codAtual = lerTextoValido("Código da especialidade a alterar: ").toUpperCase();
+        String codAtual = lerString("Código da especialidade a alterar: ").toUpperCase();
 
         if (gestao.procurarEspecialidadePorCodigo(codAtual) == null) {
             System.out.println("Especialidade não encontrada.");
@@ -361,6 +367,7 @@ public class Menu {
         }
 
         boolean ok = gestao.atualizarEspecialidade(codAtual, novoCod, novoNome);
+
         if (ok) {
             System.out.println("Especialidade atualizada.");
         } else {
@@ -370,7 +377,7 @@ public class Menu {
 
     private void removerEspecialidade() {
         System.out.println("\n=== REMOVER ESPECIALIDADE ===");
-        String codigo = lerTextoValido("Código da especialidade a remover: ").toUpperCase();
+        String codigo = lerString("Código da especialidade a remover: ").toUpperCase();
 
         String cond = lerString("Tem a certeza? (S/N): ");
         if (!cond.equalsIgnoreCase("S")) return;
@@ -383,7 +390,7 @@ public class Menu {
         }
     }
 
-    // --- MENU GESTÃO DE SINTOMAS ---
+    /** --- MENU GESTÃO DE SINTOMAS --- */
     private void menuSintomas() {
         int opcao;
         do {
@@ -428,7 +435,7 @@ public class Menu {
 
     private void adicionarSintoma() {
         System.out.println("\n=== ADICIONAR SINTOMA ===");
-        String nome = lerTextoValido("Nome do Sintoma: ");
+        String nome = lerString("Nome do Sintoma: ");
 
         // Validação simples do nível
         String nivel;
@@ -474,7 +481,7 @@ public class Menu {
 
     private void alterarSintoma() {
         System.out.println("\n=== ALTERAR SINTOMA ===");
-        String nome = lerTextoValido("Nome do Sintoma a alterar: ");
+        String nome = lerString("Nome do Sintoma a alterar: ");
 
         if (gestao.procurarSintomaPorNome(nome) == null) {
             System.out.println("Sintoma não encontrado.");
@@ -487,7 +494,7 @@ public class Menu {
         int op = lerInteiro("Escolha: ");
 
         if (op == 1) {
-            String novoNivel = lerTextoValido("Novo Nível (Verde/Amarelo/Vermelho): ");
+            String novoNivel = lerString("Novo Nível (Verde/Amarelo/Vermelho): ");
             boolean ok = gestao.atualizarNivelSintoma(nome, novoNivel);
             if(ok) System.out.println("Nível atualizado.");
             else System.out.println("Erro ao atualizar nível.");
@@ -502,7 +509,7 @@ public class Menu {
 
     private void removerSintoma() {
         System.out.println("\n=== REMOVER SINTOMA ===");
-        String nome = lerTextoValido("Nome do Sintoma: ");
+        String nome = lerString("Nome do Sintoma: ");
 
         String conf = lerString("Tem a certeza? (S/N): ");
         if (!conf.equalsIgnoreCase("S")) return;
@@ -514,7 +521,7 @@ public class Menu {
         }
     }
 
-    // --- MENU FUNCIONAMENTO DO HOSPITAL ---
+    /** --- MENU FUNCIONAMENTO DO HOSPITAL --- */
     private void menuHospital() {
         int opcao;
         do {
@@ -554,83 +561,72 @@ public class Menu {
         } while (opcao != 0);
     }
 
+    /**
+     * Responsável pelo registo de um novo utente no balcão de admissão.
+     * Recolhe os dados básicos (Nome, Idade) e cria a ficha de utente com estado "Pendente".
+     */
     private void admitirUtente() {
         System.out.println("\n=== ADMITIR UTENTE ===");
-
-        String nome = lerTextoValido("Nome do Utente: ");
+        String nome = lerString("Nome do Utente: ");
         int idade = lerInteiro("Idade do Utente: ");
-
 
         Utente u = gestao.admitirUtenteSimples(nome, idade);
 
         if (u != null) {
-            System.out.println("Utente admitido com sucesso! Número: " + u.getNumero());
-            ficheiros.escreverLog("Dia " + relogio.getDiaAtual() + " | Hora " + relogio.getHoraAtual() +
-                    ": Utente " + u.getNome() + " (Nº" + u.getNumero() + ") deu entrada no hospital.");
+           registarEvento("Novo Utente admitido: " + u.getNome() + " (Nº" + u.getNumero() + ")");
         } else {
             System.out.println("Erro ao admitir utente.");
         }
     }
 
+    /**
+     * Avança uma unidade de tempo (1 hora).
+     * Para alem de avançar o relogio do hospital verifica mudanças de turno dos médicos
+     * Verifica se algum utente deve subir de nivel de urgência.
+     * Remove da lista de espera utentes que foram transferidos por excesso de tempo.
+     * Tudo é registado no ficheiro log.
+     */
     private void avancarTempo() {
         limparEcra();
         System.out.println("\n--- A AVANÇAR O TEMPO ---");
 
-        // 1. Verificar mudança de dia para o Log
+        relogio.avancarTempo();
+        int hora = relogio.getHoraAtual();
+
         if (relogio.getHoraAtual() == 1) {
             ficheiros.escreverLog("=== INÍCIO DO DIA " + relogio.getDiaAtual() + " ===");
         }
 
-        // 2. Avançar o relógio
-        relogio.avancarTempo();
-        int hora = relogio.getHoraAtual(); // Guardar a hora nova numa variável para usar abaixo
+        String[] notificacoesMedicos = gestao.verificarTurnosMedicos(hora);
 
-        // 3. Processar Turnos dos Médicos (Entradas e Saídas) [NOVO]
-        // Percorre todos os médicos registados na gestao
-        for (int i = 0; i < gestao.getNMedicos(); i++) {
-            Modelo.Medico m = gestao.getMedicoAt(i);
-
-            // Verificar Entrada
-            if (m.getHoraEntrada() == hora) {
-                m.setDisponivel(true); // Coloca o médico como disponível
-                String msg = "O médico " + m.getNome() + " (" + m.getEspecialidade() + ") entrou ao serviço.";
-                System.out.println(msg); // Mostra no ecrã
-                ficheiros.escreverLog("Dia " + relogio.getDiaAtual() + " | Hora " + hora + ": " + msg); // Guarda no ficheiro
-            }
-
-            // Verificar Saída
-            if (m.getHoraSaida() == hora) {
-                m.setDisponivel(false); // Retira a disponibilidade
-                String msg = "O médico " + m.getNome() + " (" + m.getEspecialidade() + ") saiu do serviço.";
-                System.out.println(msg);
-                ficheiros.escreverLog("Dia " + relogio.getDiaAtual() + " | Hora " + hora + ": " + msg);
-            }
+        for (int i = 0; i < notificacoesMedicos.length; i++) {
+            String msg = notificacoesMedicos[i];
+            registarEvento(msg);
         }
 
-        // 4. Verificar alterações de urgência nos Utentes (Lógica do Aluno 2)
         boolean houveMudancas = gestao.verificarAlteracoesUrgencia();
 
-        for (int i = 0; i < gestao.getNUtentes(); i++) {
-            Modelo.Utente u = gestao.getUtenteAt(i);
-            if (u.getNome().contains("[TRANSFERIDO]")) {
-                ficheiros.escreverLog("Dia " + relogio.getDiaAtual() + " | Hora " + relogio.getHoraAtual() +
-                        ": Utente " + u.getNome() + " excedeu o tempo limite e foi transferido/removido.");
-                // Opcional: remover mesmo o utente da lista para não acumular
-                gestao.removerUtente(u.getNumero());
-                i--; // Ajustar índice após remoção
+        if (houveMudancas) {
+            registarEvento("Níveis de urgência atualidazos e transferências verificadas.");
+
+            // verificar se algum utente foi marcado como transferido
+
+            for (int i = 0; i < gestao.getNUtentes(); i++) {
+                Utente u = gestao.getUtenteAt(i);
+
+                if (u.getNome().contains("[TRANSFERIDO]")) {
+                    boolean removido = gestao.removerUtente(u.getNumero());
+                    if (removido) {
+                        i--;
+                    }
+                }
             }
-        }
-        if (houveMudancas){
-            ficheiros.escreverLog("Dia " + relogio.getDiaAtual() + " | Hora " + hora +
-                    ": Níveis de urgência atualizados devido ao tempo de espera.");
-        }
+            System.out.println("--------------------------------------------------");
+            System.out.println("📅 Dia: " + relogio.getDiaAtual() + " | 🕒 Hora Atual: " + hora + "h");
 
-        // Resumo final para o utilizador
-        System.out.println("--------------------------------------------------");
-        System.out.println("Dia: " + relogio.getDiaAtual() + " | Hora Atual: " + hora);
-
-        if (!houveMudancas) {
-            System.out.println("(Nenhuma alteração de urgência nos utentes registada nesta hora)");
+            if (notificacoesMedicos.length == 0 && !houveMudancas) {
+                System.out.println("(Hora tranquila: Nenhuma alteração de turno ou urgência registada)");
+            }
         }
     }
 
@@ -655,9 +651,7 @@ public class Menu {
         }
     }
 
-    //classe para interagir com o utente selecionado
     private void acaoUtente(Utente u) {
-        //implementar ações para o utente selecionado
         limparEcra();
         int opcao;
 
@@ -685,81 +679,65 @@ public class Menu {
         }
     }
 
+    /**
+     * Realiza a triagem para um utente que se encontra na admissão.
+     * Pesquisa e seleciona um sintoma válido da lista da gestão.
+     * Atribui o sintoma e o nível de urgência ao utente.
+     * Reinicia o contador de tempo de espera do utente
+     * @param u O objeto Utente que será submetido à triagem.
+     */
     private void realizarTriagem(Utente u) {
         limparEcra();
-        System.out.println("\n=== NOVA TRIAGEM ===");
-        System.out.println("Utente: " + u.getNome() + " | Idade: " + u.getIdade());
+        System.out.println("\n=== NOVA TRIAGEM: " + u.getNome() + " ===");
 
         Modelo.Sintoma sintomaSelecionado = null;
 
-        // Ciclo para garantir que o utilizador escolhe um sintoma válido
         while (sintomaSelecionado == null) {
-            System.out.println("\n--- Pesquisa de Sintomas ---");
             System.out.println("Digite uma palavra-chave (ex: 'dor', 'febre') ou ENTER para ver todos:");
-            String termo = scanner.nextLine().trim().toLowerCase();
+            String termo = scanner.nextLine().trim();
 
-            // Array temporário para guardar os resultados da pesquisa
-            // (Usamos o tamanho total de sintomas como limite máximo seguro)
-            Modelo.Sintoma[] resultados = new Modelo.Sintoma[gestao.getNSintomas()];
-            int countResultados = 0;
+            Modelo.Sintoma[] resultados = gestao.pesquisarSintomas(termo);
 
-            // 1. Filtrar sintomas baseados na pesquisa
-            for (int i = 0; i < gestao.getNSintomas(); i++) {
-                Modelo.Sintoma s = gestao.getSintomaAt(i);
-                // Se termo vazio (ENTER), mostra tudo. Se não, verifica se contém a palavra.
-                if (termo.isEmpty() || s.getNome().toLowerCase().contains(termo)) {
-                    resultados[countResultados++] = s;
-                }
-            }
-
-            // 2. Mostrar resultados numerados
-            if (countResultados == 0) {
+            if (resultados.length == 0) {
                 System.out.println("Nenhum sintoma encontrado com '" + termo + "'. Tente novamente.");
             } else {
-                System.out.println("\nEncontrados " + countResultados + " sintomas:");
-                for (int i = 0; i < countResultados; i++) {
-                    System.out.println("[" + (i + 1) + "] " + resultados[i].getNome() + " (" + resultados[i].getNivelUrgencia() + ")");
+                for (int i = 0; i < resultados.length; i++) {
+                    System.out.println("[" + (i+1) + "]" + resultados[i].getNome() + " (" + resultados[i].getNivelUrgencia() + ")");
                 }
                 System.out.println("[0] Nova Pesquisa / Cancelar");
 
-                // 3. Selecionar pelo número
-                int escolha = lerInteiro("Selecione o número do sintoma: ");
-
-                if (escolha > 0 && escolha <= countResultados) {
-                    sintomaSelecionado = resultados[escolha - 1]; // -1 porque o array começa em 0
-                } else if (escolha == 0) {
-                    // Volta ao início do loop para pesquisar outra vez
-                    continue;
-                } else {
-                    System.out.println("Opção inválida!");
+                int escolha = lerInteiro("Selecione o numero: ");
+                if (escolha > 0 && escolha <= resultados.length) {
+                    sintomaSelecionado = resultados[escolha - 1];
                 }
             }
         }
 
-        // 4. Gravar dados no Utente
         u.setSintoma(sintomaSelecionado.getNome());
         u.setNivelUrgencia(sintomaSelecionado.getNivelUrgencia());
-        u.resetarTempoEspera(); // O tempo começa a contar agora para subir de nível
+        u.resetarTempoEspera();
 
-        System.out.println("\nTriagem concluída com sucesso!");
+        System.out.println("\n--------------------------------");
         System.out.println("Sintoma: " + u.getSintoma());
         System.out.println("Nível Atribuído: " + u.getNivelUrgencia());
+        System.out.println("--------------------------------");
 
-        // 5. Escrever no Log (Requisito obrigatório)
-        ficheiros.escreverLog("Dia " + relogio.getDiaAtual() + " | Hora " + relogio.getHoraAtual() +
-                ": Utente " + u.getNome() + " (Nº" + u.getNumero() + ") realizou triagem. Sintoma: " +
-                u.getSintoma() + " -> Nível: " + u.getNivelUrgencia());
+        registarEvento("Triagem concluída: " + u.getNome() + "Nº" + u.getNumero() +
+                ") classificado com urgência " + u.getNivelUrgencia().toUpperCase());
     }
 
+    /**
+     * Encaminhar um utente da sala de espera para o consultório médico.
+     * Verifica se o utente já tem uma triagem feita e depois de confirmar,
+     * remove-o da lista de espera e regista a saida no ficheiro log.
+     * @param u O objeto Utente a ser encaminhado.
+     */
     private void encaminharMedico(Utente u) {
         limparEcra();
         System.out.println("\n=== ENCAMINHAR PARA MÉDICO ===");
 
-        // 1. Validação de Segurança
-        // Não faz sentido encaminhar alguém que ainda não sabemos o que tem (Pendente)
         if (u.getSintoma().equals("Pendente")) {
             System.out.println("AVISO: O utente ainda não fez a triagem.");
-            System.out.println("Realize a triagem primeiro (Opção 1) para determinar a urgência.");
             return;
         }
 
@@ -771,19 +749,10 @@ public class Menu {
 
         if (confirmacao.equalsIgnoreCase("S")) {
 
-            // 2. Ação Principal: Remover da Sala de Espera
-            // (Assumimos que o Aluno 3 garante a lógica de qual médico atende.
-            // A tua parte é garantir que ele sai da lista de espera e fica registado).
             boolean removido = gestao.removerUtente(u.getNumero());
 
             if (removido) {
-                System.out.println("\nUtente encaminhado com sucesso!");
-
-                // 3. LOG DE SAÍDA (Obrigatório para o Histórico)
-                // Isto fecha o ciclo: Entrada -> Triagem -> Saída
-                ficheiros.escreverLog("Dia " + relogio.getDiaAtual() + " | Hora " + relogio.getHoraAtual() +
-                        ": Utente " + u.getNome() + " (Nº" + u.getNumero() + ") foi atendido e saiu da sala de espera.");
-
+                registarEvento("Utente " + u.getNome() + " (Nº" + u.getNumero() + ") foi encaminhado para o médico e saiu da sala de espera.");
             } else {
                 System.out.println("Erro: Não foi possível remover o utente da lista (pode já ter saído).");
             }
@@ -792,7 +761,7 @@ public class Menu {
         }
     }
 
-    // --- MENU ESTATÍSTICAS E LOGS ---
+    /** --- MENU ESTATÍSTICAS E LOGS --- */
     private void menuEstatisticas() {
         int opcao;
         do {
@@ -840,7 +809,11 @@ public class Menu {
         } while (opcao != 0);
     }
 
-    // --- MENU CONFIGURAÇÕES ---
+    /**
+     * Menu dedicado à gestão das configurações da aplicação.
+     * Permite alterar caminhos de ficheiros, tempos de consulta, limites de espera
+     * e regras de descanso, etc.
+     */
     private void menuConfiguracoes() {
 
         if(!autenticarAdmin()) {
@@ -870,40 +843,17 @@ public class Menu {
                     System.out.print("Novo Caminho (Atual: " + Configuracoes.getCaminhoficheiro() + "): ");
                     String novoCaminho = scanner.nextLine().trim();
 
-                    if (!novoCaminho.isEmpty()) {
-                        // 1. Adicionar a barra final se faltar
-                        if (!novoCaminho.endsWith("/") && !novoCaminho.endsWith("\\")) {
-                            novoCaminho += "/";
-                        }
+                    if (ficheiros.mudarDiretorioDados(novoCaminho)) {
+                        System.out.println("Caminho alterado com sucesso para :" + Configuracoes.getCaminhoficheiro());
 
-                        // 2. Criar referências para a pasta antiga e nova
-                        File pastaAntiga = new File(Configuracoes.getCaminhoficheiro());
-                        File pastaNova = new File(novoCaminho);
-
-                        // 3. Verificar se a pasta antiga realmente existe
-                        if (pastaAntiga.exists()) {
-                            // Tenta MOVER (Renomear) a pasta
-                            boolean sucesso = pastaAntiga.renameTo(pastaNova);
-
-                            if (sucesso) {
-                                Configuracoes.setCaminhoficheiro(novoCaminho);
-                                System.out.println("Sucesso: A pasta foi movida de '" + pastaAntiga.getName() + "' para '" + pastaNova.getName() + "'.");
-                                try {
-                                    ficheiros.guardarConfiguracoes();
-                                } catch (IOException e) {
-                                    System.out.println("Erro ao atualizar ficheiro de config: " + e.getMessage());
-                                }
-                            } else {
-                                System.out.println("Erro: Não foi possível mover a pasta (verifique permissões ou se o nome já existe).");
-                            }
-                        } else {
-                            // Se a pasta antiga não existe (primeira vez a correr), apenas muda o caminho
-                            Configuracoes.setCaminhoficheiro(novoCaminho);
-                            System.out.println("Caminho alterado (a pasta antiga não existia para ser movida).");
+                        try {
+                            ficheiros.guardarConfiguracoes();
+                        } catch (IOException e ){
+                            System.out.println("Erro ao guardar as configurações: " + e.getMessage());
                         }
 
                     } else {
-                        System.out.println("Mantido o caminho anterior.");
+                        System.out.println("Erro: Não foi possivel mover a pasta ou o caminho é inválido.");
                     }
                     pausar();
                     break;
@@ -964,24 +914,17 @@ public class Menu {
                     String novoSep = scanner.nextLine().trim();
 
                     if (!novoSep.isEmpty()) {
-                        // 1. Guardar o separador antigo (caso dê erro)
                         String separadorAntigo = Configuracoes.getSeparadorFicheiro();
 
                         try {
-                            // 2. Definir o novo separador na memória
                             Configuracoes.setSeparadorFicheiro(novoSep);
-
                             System.out.println("A converter ficheiros para o novo formato...");
-
-                            // 3. REESCREVER todos os dados (Médicos, Sintomas, etc) com o NOVO separador
                             ficheiros.guardarTudo(gestao);
-
-                            // 4. Guardar a configuração
                             ficheiros.guardarConfiguracoes();
-
                             System.out.println("Sucesso! Separador alterado e ficheiros convertidos.");
 
                         } catch (IOException e) {
+
                             System.out.println("Erro grave ao converter ficheiros: " + e.getMessage());
                             System.out.println("A reverter para o separador antigo...");
                             Configuracoes.setSeparadorFicheiro(separadorAntigo);
@@ -994,13 +937,10 @@ public class Menu {
 
                 case 6:
                     System.out.println("\n--- Regras de Descanso dos Médicos ---");
-
                     int horasTrab = lerIntAlterar("Horas de trabalho seguidas antes do descanso", Configuracoes.getHorasTrabalhoParaDescanso());
                     Configuracoes.setHorasTrabalhoParaDescanso(horasTrab);
-
                     int tempoDesc = lerIntAlterar("Duração do descanso (unidades de tempo)", Configuracoes.getTempoDescanso());
                     Configuracoes.setTempoDescanso(tempoDesc);
-
                     System.out.println("Regras de descanso atualizadas!");
                     pausar();
                     break;
@@ -1066,17 +1006,17 @@ public class Menu {
     }
 
 
-    // --- MENU PARA SAIR ---
+    /** --- MENU PARA SAIR --- */
     private void menuSair () {
         String resposta = lerString("Deseja guardar as alterações antes de sair? (S/N): ");
-
-        // Verifica se a resposta é "S" ou "s" (ignora maiúsculas/minúsculas)
         if (resposta.equalsIgnoreCase("S")) {
             try {
                 System.out.println("A guardar dados...");
                 ficheiros.guardarTudo(gestao);
                 System.out.println("Dados guardados com sucesso!");
+
             } catch (IOException e) {
+
                 System.out.println("ERRO: Não foi possível guardar os dados: " + e.getMessage());
             }
         } else if (resposta.equalsIgnoreCase("N")){
@@ -1084,7 +1024,7 @@ public class Menu {
         }
     }
 
-    // --- MÉTODOS AUXILIARES ---
+    /** --- MÉTODOS AUXILIARES --- */
 
     /**
      * Le um numero inteiro do utilizador.
@@ -1119,25 +1059,26 @@ public class Menu {
         return valor;
     }
 
-    private String lerTextoValido(String mensagem) {
-        String texto;
-        while (true) {
-            System.out.println(mensagem);
-            texto = scanner.nextLine().trim();
-
-            if (!texto.isEmpty()) {
-                return texto;
-            }
-            System.out.println("Erro: este campo não pode estar vazio. Tente novamente.");
-        }
-    }
-    //metodo para os submenus Alterar para validar o vazio e nao alterar nada.
+    /**
+     * Metodo auxiliar para os menus ALTERAR os dados.
+     * Diferente do metodo lerString, este metodo aceita uma entrada vazia
+     * o que é interpretado pelo sistama como "manter o valor atual" e não altera o dado.
+     * @param mensagem A mensagem indicando o campo a alterar.
+     * @return A nova String inserida ou uma String vazia.
+     */
     private String lerStringAlterar(String mensagem) {
         System.out.println(mensagem);
         return scanner.nextLine().trim();
     }
 
-    //metodo para o menu configurações Alterar para validar o vazio e nao alterar nada.
+    /**
+     * Metodo auxiliar para ALTERAR valores inteiros.
+     * Apresenta o valor atual ao utilizador. Se a entrada for vazia o sistema intrepreta como 'manter o valor atual.
+     * se for inserido um numero valido, esse valor é retornado.
+     * @param mensagem A descrição do campo
+     * @param valorAtual O valor que o campo tem atualmente.
+     * @return O novo valor inserido ou o valor original.
+     */
     private int lerIntAlterar(String mensagem, int valorAtual) {
         System.out.print(mensagem + " (Atual " + valorAtual + "): ");
         String input = scanner.nextLine().trim();
@@ -1177,6 +1118,13 @@ public class Menu {
         }
     }
 
+    /**
+     * Recolhe uma lista dinamica de códigos de especialidades inseridos pelo utilizador.
+     * Valida se cada codigo inserido existe na gestão.
+     * O ciclo termina quando o utilizador escreve "FIM" ou atinge o limite do array temporário.
+     * Garante que não são associadas especialidades inexistentes a sintomas.
+     * @return Um array de String contendo apenas os códigos de especialidades válidos.
+     */
     private String[] lerListaEspecialidades() {
         System.out.println("Insira os código de especialidades (ex: CARD).");
         System.out.println("Digite 'FIM' para terminar a lista");
@@ -1209,6 +1157,13 @@ public class Menu {
         }
             return finalArray;
     }
+
+    /**
+     * Realiza a autenticação do utilizador para acesso a áreas sensiveis.
+     * Compara o input do utilizador com a password armazenada nas configurações.
+     * Permite cancelar a operação pressionando ENTER sem escrever nada.
+     * @return true se a password estiver correta, false se o utilizador cancelar ou falhar.
+     */
     private boolean autenticarAdmin() {
         while (true) {
             System.out.println("Password do admin (ou ENTER para voltar): ");
@@ -1221,5 +1176,18 @@ public class Menu {
             }
             System.out.println("Password incorreta! Tente novamente.");
         }
+    }
+
+    /**
+     * Metodo auxiliar para reutilizar o registo de eventos.
+     * Apresenta a mensagem na consola para o utilizador ver no momento.
+     * Grava a mensagem no ficheiro de logs com
+     * @param mensagem A descrição do evento a ser registado.
+     */
+    private void registarEvento(String mensagem) {
+        System.out.println(mensagem);
+
+        String logEntrada = "Dia " + relogio.getDiaAtual() + " | Hora " + relogio.getHoraAtual() + ": " + mensagem;
+        ficheiros.escreverLog(logEntrada);
     }
 }

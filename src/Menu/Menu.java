@@ -598,12 +598,24 @@ public class Menu {
                 ficheiros.escreverLog("Dia " + relogio.getDiaAtual() + " | Hora " + hora + ": " + msg); // Guarda no ficheiro
             }
 
+            // Verificar Pausa
+            m.setHorasSeguidasTrabalhadas(m.getHorasSeguidasTrabalhadas() + 1); // Incrementa as horas seguidas trabalhadas
+            if (m.getHorasSeguidasTrabalhadas() >= 5 && m.isDisponivel()) {
+                m.setDisponivel(false); // Medico entra em pausa (1 hora)
+                String msg = "O médico " + m.getNome() + " (" + m.getEspecialidade() + ") entrou em pausa obrigatória.";
+                System.out.println(msg);
+                ficheiros.escreverLog("Dia " + relogio.getDiaAtual() + " | Hora " + hora + ": " + msg);
+            }
+
+
             // Verificar Saída
-            if (m.getHoraSaida() == hora) {
+            if (m.getHoraSaida() == hora && m.isDisponivel()) {
                 m.setDisponivel(false); // Retira a disponibilidade
                 String msg = "O médico " + m.getNome() + " (" + m.getEspecialidade() + ") saiu do serviço.";
                 System.out.println(msg);
                 ficheiros.escreverLog("Dia " + relogio.getDiaAtual() + " | Hora " + hora + ": " + msg);
+            } else {
+                System.out.println("O médico " + m.getNome() + " (" + m.getEspecialidade() + ") permanece em serviço.");
             }
         }
 
@@ -637,12 +649,12 @@ public class Menu {
     private void listarUtentes() {
         limparEcra();
         System.out.println("\n=== UTENTES EM SALA DE ESPERA ===");
+        System.out.println("Lista de utentes atualmente em sala de espera:");
         if (gestao.getNUtentes() == 0) {
             System.out.println("Nenhum utente registado.");
             return;
         }
         for (int i = 0; i < gestao.getNUtentes(); i++) {
-            System.out.println("Lista de utentes atualmente em sala de espera:");
             System.out.println(gestao.getUtenteAt(i).toString());
         }
 
@@ -767,6 +779,47 @@ public class Menu {
         System.out.println("Sintoma: " + u.getSintoma() + " | Urgência: " + u.getNivelUrgencia());
         System.out.println("--------------------------------------------------");
 
+        // 2. Procurar o sintoma para saber quais as especialidades permitidas
+        String[] especialidadesPermitidas = null;
+        for (int i = 0; i < gestao.getNSintomas(); i++) {
+            Modelo.Sintoma s = gestao.getSintomaAt(i);
+            if (s != null && s.getNome().equalsIgnoreCase(u.getSintoma())) {
+                // Aqui guardamos o ARRAY de códigos
+                especialidadesPermitidas = s.getCodigoEspecialidade();
+                break;
+            }
+        }
+
+        if (especialidadesPermitidas == null) {
+            System.out.println("Erro: Sintoma não encontrado no sistema.");
+            return;
+        }
+
+        // 3. Procurar um médico que tenha UMA das especialidades permitidas
+        Modelo.Medico medicoEncontrado = null;
+
+        for (int i = 0; i < gestao.getNMedicos(); i++) {
+            Modelo.Medico m = gestao.getMedicoAt(i);
+
+            if (m != null && m.isDisponivel()) {
+                // Como o sintoma tem várias especialidades, temos de ver se a do médico está lá
+                for (String codEsp : especialidadesPermitidas) {
+                    if (m.getEspecialidade().equalsIgnoreCase(codEsp)) {
+                        medicoEncontrado = m;
+                        break;
+                    }
+                }
+            }
+            if (medicoEncontrado != null) break;
+        }
+
+        // 4. Se não encontrar nenhum médico
+        if (medicoEncontrado == null) {
+            System.out.println("Não há médicos disponíveis para as especialidades deste sintoma.");
+            return;
+        }
+
+        System.out.println("Médico sugerido: Dr(a). " + medicoEncontrado.getNome() + " [" + medicoEncontrado.getEspecialidade() + "]");
         String confirmacao = lerString("Confirmar encaminhamento para consultório? (S/N): ");
 
         if (confirmacao.equalsIgnoreCase("S")) {
@@ -774,6 +827,9 @@ public class Menu {
             // 2. Ação Principal: Remover da Sala de Espera
             // (Assumimos que o Aluno 3 garante a lógica de qual médico atende.
             // A tua parte é garantir que ele sai da lista de espera e fica registado).
+
+            medicoEncontrado.setDisponivel(false);
+
             boolean removido = gestao.removerUtente(u.getNumero());
 
             if (removido) {

@@ -49,29 +49,27 @@ public class Hospital {
     /**
      * Processa entradas e saídas de médicos consoante a hora.
      */
-//    private void processarMedicos() {
-//        int hora = relogio.getHoraAtual();
-//
-//        for (int i = 0; i < totalMedicos; i++) {
-//            Medico m = medicos[i];
+    private void processarMedicos() {
+        int hora = relogio.getHoraAtual();
 
-            // Entrada do médico
-//            if (m.getHoraEntrada() == hora &&
-//                    m.getEstado() == EstadoMedico.FORA_SERVICO) {
-//
-//                m.setEstado(EstadoMedico.DISPONIVEL);
-//                System.out.println("👨‍⚕️ Médico " + m.getNome() + " entrou em serviço");
-//            }
+        for (int i = 0; i < totalMedicos; i++) {
+            Medico m = medicos[i];
 
-            // Saída do médico (se estiver disponível)
-//            if (m.getHoraSaida() == hora &&
-//                    m.getEstado() == EstadoMedico.DISPONIVEL) {
-//
-//                m.setEstado(EstadoMedico.FORA_SERVICO);
-//                System.out.println("🚪 Médico " + m.getNome() + " saiu de serviço");
-//            }
-//        }
-//    }
+//             Entrada do médico
+            if (m.getHoraEntrada() == hora && !m.isDisponivel()) {
+
+                m.setDisponivel(true);
+                System.out.println("👨‍⚕️ Médico " + m.getNome() + " entrou em serviço");
+            }
+
+//             Saída do médico (se estiver disponível)
+            if (m.getHoraSaida() == hora && m.isDisponivel()) {
+
+                m.setDisponivel(false);
+                System.out.println("🚪 Médico " + m.getNome() + " saiu de serviço");
+            }
+        }
+    }
 
     // Mostra a hora atual do sistema
 //    public void mostrarHora() {

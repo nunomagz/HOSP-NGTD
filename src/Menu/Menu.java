@@ -779,26 +779,47 @@ public class Menu {
         System.out.println("Sintoma: " + u.getSintoma() + " | Urgência: " + u.getNivelUrgencia());
         System.out.println("--------------------------------------------------");
 
-        Modelo.Sintoma sintoma = gestao.procurarSintomaPorNome(u.getSintoma());
-        Modelo.Medico m = null;
-        System.out.println("Médicos disponiveis");
-        if (m.isDisponivel() && m.getEspecialidade().equals(sintoma.getCodigoEspecialidade())) {
-            for (int i = 0; i < gestao.getNMedicos(); i++) {
-                System.out.println(gestao.getMedicoAt(i).toString());
+        // 2. Procurar o sintoma para saber quais as especialidades permitidas
+        String[] especialidadesPermitidas = null;
+        for (int i = 0; i < gestao.getNSintomas(); i++) {
+            Modelo.Sintoma s = gestao.getSintomaAt(i);
+            if (s != null && s.getNome().equalsIgnoreCase(u.getSintoma())) {
+                // Aqui guardamos o ARRAY de códigos
+                especialidadesPermitidas = s.getCodigoEspecialidade();
+                break;
             }
-        } else {
-            System.out.println("Nenhum médico disponível para a especialidade deste sintoma.");
+        }
+
+        if (especialidadesPermitidas == null) {
+            System.out.println("Erro: Sintoma não encontrado no sistema.");
             return;
         }
 
-        int opcao  = lerInteiro("Escolha o médico para encaminhar o utente: ");
-        if (opcao > 0 && opcao <= gestao.getNMedicos()) {
-            m = gestao.getMedicoAt(opcao - 1);
-        } else {
+        // 3. Procurar um médico que tenha UMA das especialidades permitidas
+        Modelo.Medico medicoEncontrado = null;
+
+        for (int i = 0; i < gestao.getNMedicos(); i++) {
+            Modelo.Medico m = gestao.getMedicoAt(i);
+
+            if (m != null && m.isDisponivel()) {
+                // Como o sintoma tem várias especialidades, temos de ver se a do médico está lá
+                for (String codEsp : especialidadesPermitidas) {
+                    if (m.getEspecialidade().equalsIgnoreCase(codEsp)) {
+                        medicoEncontrado = m;
+                        break;
+                    }
+                }
+            }
+            if (medicoEncontrado != null) break;
+        }
+
+        // 4. Se não encontrar nenhum médico
+        if (medicoEncontrado == null) {
+            System.out.println("Não existem médicos de " + medicoEncontrado.getEspecialidade() + " disponíveis de momento.");
             return;
         }
 
-
+        System.out.println("Médico sugerido: Dr(a). " + medicoEncontrado.getNome() + " [" + medicoEncontrado.getEspecialidade() + "]");
         String confirmacao = lerString("Confirmar encaminhamento para consultório? (S/N): ");
 
         if (confirmacao.equalsIgnoreCase("S")) {
@@ -807,7 +828,7 @@ public class Menu {
             // (Assumimos que o Aluno 3 garante a lógica de qual médico atende.
             // A tua parte é garantir que ele sai da lista de espera e fica registado).
 
-            m.setDisponivel(false);
+            medicoEncontrado.setDisponivel(false);
 
             boolean removido = gestao.removerUtente(u.getNumero());
 

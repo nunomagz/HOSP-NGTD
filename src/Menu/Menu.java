@@ -815,7 +815,7 @@ public class Menu {
 
         // 4. Se não encontrar nenhum médico
         if (medicoEncontrado == null) {
-            System.out.println("Não existem médicos de " + medicoEncontrado.getEspecialidade() + " disponíveis de momento.");
+            System.out.println("Não há médicos disponíveis para as especialidades deste sintoma.");
             return;
         }
 

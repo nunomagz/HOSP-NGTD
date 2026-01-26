@@ -1,36 +1,82 @@
 package Configuracoes;
 
+/**
+ * Classe responsável por armazenar as configurações globais do sistema.
+ */
 public class Configuracoes {
 
-    // Gestao de ficheios
+    /**
+     * Caminho para a pasta onde os ficheiros de texto estão guardados.
+     */
     private static String caminhoficheiro = "Dados/";
+
+    /**
+     * Nome do ficheiro da classe medicos
+     */
     private static String nomeFicheiroMedicos = "medicos.txt";
+
+    /**
+     * Nome do ficheiro da classe sintomas
+     */
     private static String nomeFicheiroSintomas = "sintomas.txt";
+
+    /**
+     * Nome do ficheiro da classe especialidades
+     */
     private static String nomeFicheiroEspecialidade = "especialidades.txt";
+
+    /**
+     * Caracter utilizado para separar campos dentro dos ficheiros de texto
+     */
     private static String separadorFicheiro = ";";
 
-    // Tempo de consulta
+    /**
+     * Tempo estimado (unidades de tempo) para uma consulta de prioridade baixa
+     */
     private static int tempoConsultaBaixa = 1;
+
+    /**
+     * Tempo estimado (unidades de tempo) para uma consulta de prioridade media
+     */
     private static int tempoConsultaMedia = 2;
+
+    /**
+     * Tempo estimado (unidades de tempo) para uma consulta de prioridade urgente
+     */
     private static int tempoConsultaUrgente = 3;
 
-    // elevação de nivel de urgencia
-
+    /**
+     * Limite de espera para passar de verde para amarelo
+     */
     private static int LimiteEsperaVerdeParaAmarelo = 3;
+
+    /**
+     * Limite de espera para passar de amarelo para vermelho
+     */
     private static int LimiteEsperaAmareloParaVermelho = 3;
+
+    /**
+     * Limite de espera para passar de vermelho para saida
+     */
     private static int LimiteEsperaVermelhoSaida = 2;
 
-    //Regras de descanso
+    /**
+     * Horas o médico necessita de trabalhar seguidas para poder descansar
+     */
     private static int horasTrabalhoParaDescanso = 5;
+
+    /**
+     * Tempo que o médico tem de descanso
+     */
     private static int tempoDescanso = 1;
 
-    // Segurança
-
+    /**
+     * Password necessaria para aceder ao menu gestão de dados e configurações
+     */
     private static String password = "Admin123";
 
+
     //Getters e Setters
-
-
     public static String getCaminhoficheiro() {
         return caminhoficheiro;
     }

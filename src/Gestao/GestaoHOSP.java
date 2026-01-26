@@ -35,6 +35,8 @@ public class GestaoHOSP {
     private Utente[] utentes = new Utente[50];
     private int nUtentes = 0;
     private int proximoNumeroUtente = 1;
+    private Utente[] historicoUtentes = new Utente[200];
+    private int nHistorico = 0;
 
     // GETTERS (para DataIO e Menu
     public int getNEspecialidades() { return nEspecialidades; }
@@ -55,6 +57,12 @@ public class GestaoHOSP {
     public int getNUtentes() { return nUtentes; }
     public Utente getUtenteAt(int i) {
         return (i < 0 || i >= nUtentes) ? null : utentes[i];
+    }
+
+    public int getNHistorico() { return nHistorico; }
+    public Utente getUtenteHistoricoAt(int i) {
+        if (i < 0 || i >= nHistorico) return null;
+        return historicoUtentes[i];
     }
 
     // CRUD ESPECIALIDADE
@@ -419,5 +427,49 @@ public class GestaoHOSP {
             novo[i] = utentes[i];
         }
         utentes = novo;
+    }
+
+    /**
+     * Verifica se existem utentes marcados como [TRANSFERIDO] na sala de espera.
+     * Se houver, move-os para o histórico e remove-os da sala de espera.
+     */
+    public void processarTransferencias() {
+        // Percorremos o array ao contrário para podermos remover sem estragar os índices
+        for (int i = nUtentes - 1; i >= 0; i--) {
+            Utente u = utentes[i];
+
+            if (u.getNome().contains("[TRANSFERIDO]")) {
+                // 1. Adicionar ao histórico
+                adicionarAoHistorico(u);
+
+                // 2. Remover da sala de espera (fazendo o shift manual)
+                removerUtentePorIndice(i);
+            }
+        }
+    }
+
+    /**
+     * Adiciona um utente ao array de histórico.
+     * (Será muito útil depois para as tuas estatísticas)
+     */
+    private void adicionarAoHistorico(Utente u) {
+        if (nHistorico >= historicoUtentes.length) {
+            // Se o histórico encher, duplicamos o tamanho (tal como fazes nos outros)
+            Utente[] novo = new Utente[historicoUtentes.length * 2];
+            for(int k=0; k<historicoUtentes.length; k++) novo[k] = historicoUtentes[k];
+            historicoUtentes = novo;
+        }
+        historicoUtentes[nHistorico++] = u;
+    }
+
+    /**
+     * Remove um utente dado o seu índice no array (auxiliar para não repetir lógica).
+     */
+    private void removerUtentePorIndice(int indice) {
+        for (int i = indice; i < nUtentes - 1; i++) {
+            utentes[i] = utentes[i + 1];
+        }
+        utentes[nUtentes - 1] = null;
+        nUtentes--;
     }
 }

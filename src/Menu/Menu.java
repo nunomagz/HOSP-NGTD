@@ -5,12 +5,10 @@ import Gestao.GestorFicheiros;
 import Gestao.GestaoHOSP;
 import Modelo.Hospital;
 import Modelo.RelogioHospital;
-import Modelo.Sintoma;
 import Modelo.Utente;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.SQLOutput;
 import java.util.Scanner;
 
 /**

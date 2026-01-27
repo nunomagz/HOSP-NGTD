@@ -75,23 +75,117 @@ public class Estatisticas {
     }
 
     /**
-     * Implementa a regra de análise preditiva (80%). Verifica se um determinado sintoma
-     * tem uma forte correlação estatística (igual ou superior a 80%) com uma especialidade específica,
-     * baseando-se no histórico de atendimentos realizados.
-     * * @param g Instância da gestão para acesso aos dados históricos.
-     * @param nomeSintoma Nome do sintoma a ser analisado para a sugestão.
+     * Analisa o histórico para encontrar a especialidade que mais atendeu um sintoma.
+     * Se essa especialidade representar 80% ou mais dos atendimentos, sugere o catálogo.
      */
     public static void verificarRegra80(GestaoHOSP g, String nomeSintoma) {
-        int totalCasos = 0;
+        int totalCasosSintoma = 0;
         String[] especialidadesAtendidas = new String[20];
         int[] contagemPorEspec = new int[20];
         int nEspecEncontradas = 0;
 
+        // 1. Contar atendimentos por especialidade para este sintoma no histórico
         for (int i = 0; i < g.getNHistorico(); i++) {
             Utente u = g.getUtenteHistoricoAt(i);
             if (u.getSintoma().equalsIgnoreCase(nomeSintoma)) {
-                totalCasos++;
+                totalCasosSintoma++;
+                // Extrair especialidade do log ou do médico que atendeu (simplificado pelo histórico)
+                // Aqui assumimos que o utente guardou a especialidade que o atendeu no histórico
+                String especQueAtendeu = extrairEspecialidadeDoHistorico(u);
+
+                if (especQueAtendeu != null) {
+                    int idx = -1;
+                    for (int j = 0; j < nEspecEncontradas; j++) {
+                        if (especialidadesAtendidas[j].equals(especQueAtendeu)) {
+                            idx = j;
+                            break;
+                        }
+                    }
+                    if (idx != -1) {
+                        contagemPorEspec[idx]++;
+                    } else if (nEspecEncontradas < 20) {
+                        especialidadesAtendidas[nEspecEncontradas] = especQueAtendeu;
+                        contagemPorEspec[nEspecEncontradas] = 1;
+                        nEspecEncontradas++;
+                    }
+                }
             }
         }
+
+        if (totalCasosSintoma == 0) {
+            System.out.println("Sem histórico suficiente para o sintoma: " + nomeSintoma);
+            return;
+        }
+
+        // 2. Verificar se alguma especialidade atinge o limiar de 80%
+        for (int i = 0; i < nEspecEncontradas; i++) {
+            double percentagem = (double) contagemPorEspec[i] / totalCasosSintoma;
+            if (percentagem >= 0.8) {
+                System.out.println("💡 SUGESTÃO (Regra 80%): O sintoma '" + nomeSintoma +
+                        "' é atendido em " + (percentagem * 100) +
+                        "% dos casos por " + especialidadesAtendidas[i] + ".");
+                return;
+            }
+        }
+        System.out.println("O sintoma '" + nomeSintoma + "' não tem uma especialidade predominante (>=80%).");
+    }
+
+    /**
+     * Calcula e exibe as 3 especialidades com maior volume de pacientes atendidos.
+     */
+    public static void exibirTop3Especialidades(GestaoHOSP g) {
+        int totalAtendidos = g.getNHistorico();
+        if (totalAtendidos == 0) {
+            System.out.println("Ainda não existem utentes atendidos no histórico.");
+            return;
+        }
+
+        // Criar arrays para contar pacientes por especialidade existente
+        String[] nomesEspecs = new String[g.getNEspecialidades()];
+        int[] contagens = new int[g.getNEspecialidades()];
+
+        for (int i = 0; i < g.getNEspecialidades(); i++) {
+            String cod = g.getEspecialidadeAt(i).getCodigo();
+            nomesEspecs[i] = cod;
+
+            for (int j = 0; j < g.getNHistorico(); j++) {
+                Utente u = g.getUtenteHistoricoAt(j);
+                if (u.getEspecialidadeAtendimento() != null &&
+                        u.getEspecialidadeAtendimento().equalsIgnoreCase(cod)) {
+                    contagens[i]++;
+                }
+            }
+        }
+
+        // Ordenar (Bubble Sort) para obter os maiores valores no início
+        for (int i = 0; i < nomesEspecs.length - 1; i++) {
+            for (int j = 0; j < nomesEspecs.length - i - 1; j++) {
+                if (contagens[j] < contagens[j + 1]) {
+                    // Trocar contagem
+                    int tempC = contagens[j];
+                    contagens[j] = contagens[j + 1];
+                    contagens[j + 1] = tempC;
+                    // Trocar nome
+                    String tempN = nomesEspecs[j];
+                    nomesEspecs[j] = nomesEspecs[j + 1];
+                    nomesEspecs[j + 1] = tempN;
+                }
+            }
+        }
+
+        System.out.println("\n--- TOP 3 ESPECIALIDADES MAIS PROCURADAS ---");
+        for (int i = 0; i < 3 && i < nomesEspecs.length; i++) {
+            double percentagem = ((double) contagens[i] / totalAtendidos) * 100;
+            System.out.printf("%d. %s: %d pacientes (%.2f%%)\n", (i + 1), nomesEspecs[i], contagens[i], percentagem);
+        }
+    }
+
+    /**
+     * Metodo auxiliar para identificar qual especialidade atendeu o utente.
+     * Baseia-se no campo que adicionámos ao Utente ou no nome/log.
+     */
+    private static String extrairEspecialidadeDoHistorico(Utente u) {
+        // Se usaste o campo novo no Utente:
+        return u.getEspecialidadeAtendimento();
     }
 }

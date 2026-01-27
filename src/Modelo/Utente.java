@@ -7,17 +7,8 @@ public class Utente {
     private String sintoma;
     private String NivelUrgencia;
     private int tempoEsperaNivel;
+    private String especialidadeAtendimento;
 
-//    public Utente(int numero, String nome, int idade, String sintoma, String nivelUrgencia) {
-//        this.numero = numero;
-//        this.nome = nome;
-//        this.idade = idade;
-//        this.sintoma = sintoma;
-//        NivelUrgencia = nivelUrgencia;
-//        this.tempoEsperaNivel = 0;
-//    }
-
-    // Novo construtor para Admissão (antes da triagem)
     public Utente(int numero, String nome, int idade) {
         this.numero = numero;
         this.nome = nome;
@@ -70,6 +61,7 @@ public class Utente {
     public int getTempoEsperaNivel() {
         return tempoEsperaNivel;
     }
+
     public void setTempoEsperaNivel(int tempoEsperaNivel) {
         if (tempoEsperaNivel >= 0) {
             this.tempoEsperaNivel = tempoEsperaNivel;
@@ -78,6 +70,10 @@ public class Utente {
             this.tempoEsperaNivel = 0;
         }
     }
+
+    public String getEspecialidadeAtendimento() { return especialidadeAtendimento; }
+
+    public void setEspecialidadeAtendimento(String esp) { this.especialidadeAtendimento = esp; }
 
     public void incrementarTempoEspera() {
         this.tempoEsperaNivel++;

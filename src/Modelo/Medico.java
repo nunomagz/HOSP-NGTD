@@ -11,6 +11,7 @@ public class Medico {
     private boolean disponivel;
     private int horasSeguidasTrabalhadas;
     private int tempoOcupadoRestante = 0;
+    private Utente utenteEmConsulta = null;
 
     public Medico(String nome, String especialidade, int horaEntrada, int horaSaida, int salario, boolean disponivel, int horasSeguidasTrabalhadas) {
         this.nome = nome;
@@ -89,6 +90,16 @@ public class Medico {
                 this.setDisponivel(true); // Fica livre quando o tempo acaba
             }
         }
+    }
+
+    public Utente getUtenteEmConsulta() { return utenteEmConsulta; }
+
+    public void setUtenteEmConsulta(Utente u) { this.utenteEmConsulta = u; }
+
+    public void finalizarConsulta() {
+        this.utenteEmConsulta = null;
+        this.tempoOcupadoRestante = 0;
+        this.disponivel = true; // Volta a ficar livre para o próximo
     }
 
     @Override

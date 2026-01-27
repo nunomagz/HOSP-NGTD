@@ -484,17 +484,26 @@ public class Menu {
             return;
         }
 
-        System.out.println("1. Alterar Nível de Urgência");
-        System.out.println("2. Alterar Especialidades Associadas");
+        System.out.println("1. Alterar Nome do Sintoma"); // Nova opção
+        System.out.println("2. Alterar Nível de Urgência");
+        System.out.println("3. Alterar Especialidades Associadas");
         System.out.println("0. Cancelar");
         int op = lerInteiro("Escolha: ");
 
         if (op == 1) {
+            String novoNome = lerString("Novo Nome: ");
+            if(gestao.atualizarNomeSintoma(nome, novoNome)) {
+                System.out.println("Nome atualizado com sucesso!");
+            } else {
+                System.out.println("Erro ao atualizar o nome.");
+            }
+        }
+        if (op == 2) {
             String novoNivel = lerString("Novo Nível (Verde/Amarelo/Vermelho): ");
             boolean ok = gestao.atualizarNivelSintoma(nome, novoNivel);
             if(ok) System.out.println("Nível atualizado.");
             else System.out.println("Erro ao atualizar nível.");
-        } else if (op == 2) {
+        } else if (op == 3) {
             System.out.println("Isto irá substituir todas as especialidades anteriores.");
             String[] novosCodigos = lerListaEspecialidades();
             boolean ok = gestao.atualizarEspecialidadesSintoma(nome, novosCodigos);

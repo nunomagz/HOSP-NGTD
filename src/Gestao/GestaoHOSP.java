@@ -3,10 +3,7 @@ package Gestao;
                                 //linha 178 e 179 importantes
 
 import Controlador.Calculos;
-import Modelo.Especialidade;
-import Modelo.Medico;
-import Modelo.Sintoma;
-import Modelo.Utente;
+import Modelo.*;
 
 /**
  * Classe de gestão dos dados do hospital.
@@ -297,14 +294,38 @@ public class GestaoHOSP {
     }
 
     /**
-     * UPDATE: alterar nível do sintoma.
+     * UPDATE: alterar o nível do sintoma com validação de valores permitidos.
      */
     public boolean atualizarNivelSintoma(String nome, String novoNivel) {
         int idx = indexSintoma(nome);
         if (idx == -1) return false;
 
-        if (novoNivel == null || novoNivel.trim().isEmpty()) return false;
-        sintomas[idx].setNivelUrgencia(novoNivel.trim());
+        if (!NivelUrgencia.isValido(novoNivel)) {
+            System.out.println("⚠️ Nível inválido. Use Verde, Amarelo ou Vermelho.");
+            return false;
+        }
+
+        sintomas[idx].setNivelUrgencia(NivelUrgencia.normalizar(novoNivel));
+        return true;
+    }
+
+    /**
+     * UPDATE: alterar o nome de um sintoma existente.
+     * Verifica se o novo nome já está em uso para evitar duplicados.
+     */
+    public boolean atualizarNomeSintoma(String nomeAntigo, String novoNome) {
+        if (vazio(novoNome)) return false;
+
+        int idxOriginal = indexSintoma(nomeAntigo);
+        if (idxOriginal == -1) return false;
+
+        // Verifica se já existe outro sintoma com o novo nome proposto
+        if (procurarSintomaPorNome(novoNome) != null) {
+            System.out.println("⚠️ Já existe um sintoma com o nome: " + novoNome);
+            return false;
+        }
+
+        sintomas[idxOriginal].setNome(nomeTrim(novoNome));
         return true;
     }
 

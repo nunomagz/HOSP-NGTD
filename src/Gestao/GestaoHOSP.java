@@ -487,19 +487,23 @@ public class GestaoHOSP {
     }
 
     /**
-     * Verifica se existem utentes marcados como [TRANSFERIDO] na sala de espera.
+     * Verifica se existem utentes marcados como [TRANSFERIDO] ou [ATENDIDO] na sala de espera.
      * Se houver, move-os para o histórico e remove-os da sala de espera.
+     * Este metodo é crucial para libertar espaço nos arrays e atualizar as estatísticas.
      */
     public void processarTransferencias() {
-        // Percorremos de trás para a frente para o shift do array não saltar elementos
+        // Percorremos de trás para a frente para que o shift do array (removerUtentePorIndice)
+        // não salte elementos quando um é removido.
         for (int i = nUtentes - 1; i >= 0; i--) {
             Utente u = utentes[i];
 
-            if (u.getNome().contains("[TRANSFERIDO]")) {
-                // 1. Adicionar ao histórico (útil para as estatísticas de média de atendidos)
+            // Verifica se o utente terminou o seu percurso no hospital
+            if (u.getNome().contains("[TRANSFERIDO]") || u.getNome().contains("[ATENDIDO]")) {
+
+                // 1. Adicionar ao histórico para as estatísticas (Média Diária, Top 3, etc.)
                 adicionarAoHistorico(u);
 
-                // 2. Remover da sala de espera
+                // 2. Remover da sala de espera física
                 removerUtentePorIndice(i);
             }
         }

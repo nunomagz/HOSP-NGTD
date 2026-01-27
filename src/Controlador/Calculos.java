@@ -163,22 +163,22 @@ public class Calculos {
      * @return O objeto Medico se encontrar, ou null se ninguém puder atender.
      */
     public Medico procurarMedicoDisponivel(Medico[] medicos, int nMedicos, String especialidadeAlvo, int horaAtual) {
-        // 1ª Passagem: Tenta encontrar alguém da mesma especialidade (apenas se a especialidade for conhecida)
+        // 1ª Passagem: Tenta encontrar um especialista disponível e no turno
         if (especialidadeAlvo != null) {
             for (int i = 0; i < nMedicos; i++) {
                 Medico m = medicos[i];
                 if (m.isDisponivel() && m.getEspecialidade().equalsIgnoreCase(especialidadeAlvo)) {
-                    if (horaAtual >= m.getHoraEntrada() && horaAtual < m.getHoraSaida()) {
+                    if (estaNoTurno(m, horaAtual)) {
                         return m;
                     }
                 }
             }
         }
 
-        // 2ª Passagem: Se não encontrou especialista OU se o utente não tem especialidade definida,
+        // 2ª Passagem: Se não houver especialista ou a especialidade for null, busca qualquer médico no turno
         for (int i = 0; i < nMedicos; i++) {
             Medico m = medicos[i];
-            if (m.isDisponivel() && horaAtual >= m.getHoraEntrada() && horaAtual < m.getHoraSaida()) {
+            if (m.isDisponivel() && estaNoTurno(m, horaAtual)) {
                 return m;
             }
         }
@@ -204,34 +204,30 @@ public class Calculos {
                     Utente u = m.getUtenteEmConsulta();
                     System.out.println("🏁 ALTA: O utente " + u.getNome() + " terminou a consulta com Dr. " + m.getNome());
 
-                    // Mover para o histórico e remover da sala de espera
                     gestao.adicionarAoHistorico(u);
                     gestao.removerUtente(u.getNumero());
                     m.finalizarConsulta();
                 }
             }
 
-            // 2. Lógica de Entrada no Turno
-            if (m.getHoraEntrada() == horaAtual && !m.isDisponivel()) {
+            // 2. Lógica de Entrada e Saída do Turno
+            boolean noTurno = estaNoTurno(m, horaAtual);
+
+            if (noTurno && !m.isDisponivel() && m.getTempoOcupadoRestante() == 0) {
                 m.setDisponivel(true);
                 m.setHorasSeguidasTrabalhadas(0);
                 System.out.println("👨‍⚕️ Dr. " + m.getNome() + " iniciou o turno.");
             }
-
-            // 3. Lógica de Saída do Turno (Respeita o serviço em curso )
-            if (horaAtual >= m.getHoraSaida()) {
+            else if (!noTurno && m.isDisponivel()) {
                 if (m.getTempoOcupadoRestante() == 0) {
-                    if (m.isDisponivel()) {
-                        m.setDisponivel(false);
-                        System.out.println("🚪 Dr. " + m.getNome() + " terminou o turno e saiu do hospital.");
-                    }
+                    m.setDisponivel(false);
+                    System.out.println("🚪 Dr. " + m.getNome() + " terminou o turno e saiu.");
                 } else {
-                    // Notificação de que o médico está a fazer "horas extra" para acabar o serviço
-                    System.out.println("⏳ Dr. " + m.getNome() + " aguarda fim da consulta para sair (Turno encerrado).");
+                    System.out.println("⏳ Dr. " + m.getNome() + " aguarda fim da consulta para sair.");
                 }
             }
 
-            // 4. Pausas (Resetar contador após a pausa)
+            // 3. Pausas (Regra das 5 horas)
             if (m.isDisponivel() && m.getTempoOcupadoRestante() == 0) {
                 m.setHorasSeguidasTrabalhadas(m.getHorasSeguidasTrabalhadas() + 1);
                 if (m.getHorasSeguidasTrabalhadas() >= 5) {
@@ -341,6 +337,20 @@ public class Calculos {
             u.setNome(u.getNome() + " [ATENDIDO]");
         } else {
             System.out.println("⏳ Ninguém disponível para atender " + u.getNome() + " no momento.");
+        }
+    }
+
+    /**
+     * Verifica se o médico está dentro do seu horário de serviço,
+     * suportando turnos que atravessam a meia-noite.
+     */
+    public boolean estaNoTurno(Medico m, int horaAtual) {
+        if (m.getHoraEntrada() < m.getHoraSaida()) {
+            // Turno padrão (ex: 08h às 16h)
+            return horaAtual >= m.getHoraEntrada() && horaAtual < m.getHoraSaida();
+        } else {
+            // Turno noturno (ex: 22h às 06h)
+            return horaAtual >= m.getHoraEntrada() || horaAtual < m.getHoraSaida();
         }
     }
 

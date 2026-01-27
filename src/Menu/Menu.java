@@ -586,60 +586,50 @@ public class Menu {
         limparEcra();
         System.out.println("\n--- A AVANÇAR O TEMPO ---");
 
-        // 1. Verificar mudança de dia para o Log
+        // 1. Verificar início de dia para logs
         if (relogio.getHoraAtual() == 1) {
             ficheiros.escreverLog("=== INÍCIO DO DIA " + relogio.getDiaAtual() + " ===");
         }
 
         // 2. Avançar o relógio
         relogio.avancarTempo();
-        int hora = relogio.getHoraAtual(); // Guardar a hora nova numa variável para usar abaixo
+        int hora = relogio.getHoraAtual();
 
-        // 3. Processar Turnos dos Médicos (Entradas e Saídas) [NOVO]
-        // Percorre todos os médicos registados na gestao
-
-        Modelo.Medico[] medicos = new Modelo.Medico[gestao.getNMedicos()];
+        // 3. Preparar dados para o Controlador
+        Modelo.Medico[] medicosAtuais = new Modelo.Medico[gestao.getNMedicos()];
         for (int i = 0; i < gestao.getNMedicos(); i++) {
-            medicos[i] = gestao.getMedicoAt(i);
+            medicosAtuais[i] = gestao.getMedicoAt(i);
         }
 
-        calculos.atualizarEstadoMedicos(medicos, gestao.getNMedicos(), hora, gestao);
+        Modelo.Sintoma[] todosSintomas = new Modelo.Sintoma[gestao.getNSintomas()];
+        for (int i = 0; i < gestao.getNSintomas(); i++) {
+            todosSintomas[i] = gestao.getSintomaAt(i);
+        }
 
         Modelo.Utente[] utentesFila = new Modelo.Utente[gestao.getNUtentes()];
         for (int i = 0; i < gestao.getNUtentes(); i++) {
             utentesFila[i] = gestao.getUtenteAt(i);
         }
 
-        Modelo.Medico[] medicosAtivos = new Modelo.Medico[gestao.getNMedicos()];
-        for (int i = 0; i < gestao.getNMedicos(); i++) {
-            medicosAtivos[i] = gestao.getMedicoAt(i);
-        }
+        // 4. Atualizar estado dos médicos (Entradas, Saídas e Altas)
+        calculos.atualizarEstadoMedicos(medicosAtuais, gestao.getNMedicos(), hora, gestao);
 
-        Modelo.Sintoma[] catalogoSintomas = new Modelo.Sintoma[gestao.getNSintomas()];
-        for (int i = 0; i < gestao.getNSintomas(); i++) {
-            catalogoSintomas[i] = gestao.getSintomaAt(i);
-        }
+        // 5. Processar Fila de Espera (Atribuição automática)
+        calculos.processarFilaEspera(utentesFila, gestao.getNUtentes(), medicosAtuais, gestao.getNMedicos(), todosSintomas, gestao.getNSintomas(), hora);
 
-        calculos.processarFilaEspera(utentes, gestao.getNUtentes(), medicos, gestao.getNMedicos(), todosSintomas, gestao.getNSintomas(), relogio.getHoraAtual());
-
-        // 4. Verificar alterações de urgência nos Utentes (Lógica do Aluno 2)
+        // 6. Verificar alterações de urgência por tempo de espera
         boolean houveMudancas = gestao.verificarAlteracoesUrgencia();
 
+        // 7. Limpeza: Remover utentes atendidos/transferidos da sala de espera
         gestao.processarTransferencias();
 
-        if (houveMudancas){
+        if (houveMudancas) {
             registarEvento("Níveis de urgência atualizados devido ao tempo de espera.");
         }
 
-        // Resumo final para o utilizador
         System.out.println("--------------------------------------------------");
         System.out.println("Dia: " + relogio.getDiaAtual() + " | Hora Atual: " + hora);
-
-        if (!houveMudancas) {
-            System.out.println("(Nenhuma alteração de urgência nos utentes registada nesta hora)");
-        }
     }
-
     private void listarUtentes() {
         limparEcra();
         System.out.println("\n=== UTENTES EM SALA DE ESPERA ===");
@@ -785,92 +775,30 @@ public class Menu {
         limparEcra();
         System.out.println("\n=== ENCAMINHAR PARA MÉDICO ===");
 
-        // 1. Validação de Segurança
-        // Não faz sentido encaminhar alguém que ainda não sabemos o que tem (Pendente)
         if (u.getSintoma().equals("Pendente")) {
             System.out.println("AVISO: O utente ainda não fez a triagem.");
-            System.out.println("Realize a triagem primeiro (Opção 1) para determinar a urgência.");
             return;
         }
 
-        System.out.println("Utente: " + u.getNome());
-        System.out.println("Sintoma: " + u.getSintoma() + " | Urgência: " + u.getNivelUrgencia());
-        System.out.println("--------------------------------------------------");
-
-
-        // 2. Encontrar o objeto Sintoma correspondente ao nome guardado no utente
-        Modelo.Sintoma sintomaDoUtente = null;
-        for (int i = 0; i < gestao.getNSintomas(); i++) {
-            Modelo.Sintoma s = gestao.getSintomaAt(i);
-            if (s != null && s.getNome().equalsIgnoreCase(u.getSintoma())) {
-                sintomaDoUtente = s;
-                break;
-            }
-        }
-
-        if (sintomaDoUtente == null) {
-            System.out.println("Erro: Sintoma do utente não encontrado no sistema.");
-            return;
-        }
-
-        // 3. Usar Calculos.determinarEspecialidade para decidir a especialidade certa
-        Modelo.Sintoma[] sintomasUtente = { sintomaDoUtente };   // array de 1 posição
-        String especialidadeEscolhida = Calculos.determinarEspecialidade(sintomasUtente, 1);
-
-        if (especialidadeEscolhida == null) {
-            System.out.println("Não foi possível determinar uma especialidade para este sintoma.");
-            return;
-        }
-
-        System.out.println("Especialidade sugerida: " + especialidadeEscolhida);
-
-        // construir um array temporário com todos os médicos
+        // Preparar dados para o controlador
         Modelo.Medico[] medicos = new Modelo.Medico[gestao.getNMedicos()];
         for (int i = 0; i < gestao.getNMedicos(); i++) {
             medicos[i] = gestao.getMedicoAt(i);
         }
 
-        // 4. Usar Calculos.procurarMedicoDisponivel para encontrar médico compatível
-        int horaAtual = relogio.getHoraAtual();
-        Modelo.Medico medicoEncontrado =
-                calculos.procurarMedicoDisponivel(
-                        medicos,           // assumes existe getMedicos()
-                        gestao.getNMedicos(),
-                        especialidadeEscolhida,
-                        horaAtual
-                );
-
-
-        // 4. Se não encontrar nenhum médico
-        if (medicoEncontrado == null) {
-            System.out.println("Não há médicos disponíveis para as especialidades deste sintoma.");
-            return;
+        Modelo.Sintoma[] todosSintomas = new Modelo.Sintoma[gestao.getNSintomas()];
+        for (int i = 0; i < gestao.getNSintomas(); i++) {
+            todosSintomas[i] = gestao.getSintomaAt(i);
         }
 
-        System.out.println("Médico sugerido: Dr(a). " + medicoEncontrado.getNome() + " [" + medicoEncontrado.getEspecialidade() + "]");
-        String confirmacao = lerString("Confirmar encaminhamento para consultório? (S/N): ");
+        int horaAtual = relogio.getHoraAtual();
 
-        if (confirmacao.equalsIgnoreCase("S")) {
+        // Chamar o processamento de consulta (atribui tempo de 1 ou 2 un.)
+        calculos.processarUtente(u, medicos, gestao.getNMedicos(), todosSintomas, gestao.getNSintomas(), horaAtual);
 
-            // 2. Ação Principal: Remover da Sala de Espera
-            // (Assumimos que o Aluno 3 garante a lógica de qual médico atende.
-            // A tua parte é garantir que ele sai da lista de espera e fica registado).
-
-            medicoEncontrado.setDisponivel(false);
-
-            boolean removido = gestao.removerUtente(u.getNumero());
-
-            if (removido) {
-                System.out.println("\nUtente encaminhado com sucesso!");
-
-                registarEvento("Encaminhamento: Utente " + u.getNome() + " atendido por Dr(a). " +
-                        medicoEncontrado.getNome() + " (" + medicoEncontrado.getEspecialidade() + ")");
-
-            } else {
-                System.out.println("Erro: Não foi possível remover o utente da lista (pode já ter saído).");
-            }
-        } else {
-            System.out.println("Operação cancelada.");
+        // Se o utente foi marcado como [ATENDIDO], registamos o evento
+        if (u.getNome().contains("[ATENDIDO]")) {
+            registarEvento("Encaminhamento Manual: Utente " + u.getNome() + " enviado para consulta.");
         }
     }
 

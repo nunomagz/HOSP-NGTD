@@ -614,15 +614,8 @@ public class Menu {
         // 4. Verificar alterações de urgência nos Utentes (Lógica do Aluno 2)
         boolean houveMudancas = gestao.verificarAlteracoesUrgencia();
 
-        for (int i = 0; i < gestao.getNUtentes(); i++) {
-            Modelo.Utente u = gestao.getUtenteAt(i);
-            if (u.getNome().contains("[TRANSFERIDO]")) {
-                registarEvento("Utente " + u.getNome() + " excedeu o tempo limite e foi transferido/removido.");
-                // Opcional: remover mesmo o utente da lista para não acumular
-                gestao.removerUtente(u.getNumero());
-                i--; // Ajustar índice após remoção
-            }
-        }
+        gestao.processarTransferencias();
+
         if (houveMudancas){
             registarEvento("Níveis de urgência atualizados devido ao tempo de espera.");
         }

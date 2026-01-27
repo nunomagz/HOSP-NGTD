@@ -36,6 +36,9 @@ public class GestaoHOSP {
     private Utente[] utentes = new Utente[50];
     private int nUtentes = 0;
     private int proximoNumeroUtente = 1;
+    private Utente[] historicoUtentes = new Utente[200];
+    private int nHistorico = 0;
+
 
     // GETTERS (para DataIO e Menu
     public int getNEspecialidades() { return nEspecialidades; }
@@ -57,6 +60,13 @@ public class GestaoHOSP {
     public Utente getUtenteAt(int i) {
         return (i < 0 || i >= nUtentes) ? null : utentes[i];
     }
+
+    public int getNHistorico() { return nHistorico; }
+    public Utente getUtenteHistoricoAt(int i) {
+        if (i < 0 || i >= nHistorico) return null;
+        return historicoUtentes[i];
+    }
+
 
     // CRUD ESPECIALIDADE
 
@@ -454,6 +464,8 @@ public class GestaoHOSP {
             proximoNumeroUtente = numero + 1;
         }
     }
+
+
     // Helpers
 
     private boolean vazio(String s) {

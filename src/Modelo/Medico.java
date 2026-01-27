@@ -10,6 +10,7 @@ public class Medico {
     private int salario;
     private boolean disponivel;
     private int horasSeguidasTrabalhadas;
+    private int tempoOcupadoRestante = 0;
 
     public Medico(String nome, String especialidade, int horaEntrada, int horaSaida, int salario, boolean disponivel, int horasSeguidasTrabalhadas) {
         this.nome = nome;
@@ -75,6 +76,19 @@ public class Medico {
 
     public void setHorasSeguidasTrabalhadas(int horasSeguidasTrabalhadas) {
         this.horasSeguidasTrabalhadas = horasSeguidasTrabalhadas;
+    }
+
+    public int getTempoOcupadoRestante() { return tempoOcupadoRestante; }
+
+    public void setTempoOcupadoRestante(int tempo) { this.tempoOcupadoRestante = tempo; }
+
+    public void decrementarTempoOcupado() {
+        if (this.tempoOcupadoRestante > 0) {
+            this.tempoOcupadoRestante--;
+            if (this.tempoOcupadoRestante == 0) {
+                this.setDisponivel(true); // Fica livre quando o tempo acaba
+            }
+        }
     }
 
     @Override

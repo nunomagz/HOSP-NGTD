@@ -1,6 +1,7 @@
 package Menu;
 
 import Configuracoes.Configuracoes;
+import Controlador.Estatisticas;
 import Gestao.GestorFicheiros;
 import Gestao.GestaoHOSP;
 import Modelo.Hospital;
@@ -857,7 +858,8 @@ public class Menu {
             System.out.println("╠══════════════════════════════════════════════════════════════╣");
             System.out.println("║  1. Ver Média de Utentes Atendidos                           ║");
             System.out.println("║  2. Top 3 Especialidades mais procuradas                     ║");
-            System.out.println("║  3. Consultar Logs do Sistema                                ║");
+            System.out.println("║  3. Tabela Salarial (Médicos)                                ║");
+            System.out.println("║  4. Consultar Logs do Sistema                                ║");
             System.out.println("║  0. Voltar                                                   ║");
             System.out.println("╚══════════════════════════════════════════════════════════════╝");
 
@@ -865,23 +867,15 @@ public class Menu {
 
             switch (opcao) {
                 case 1:
-                    // SIMULAÇÃO: Gera um número aleatório entre 5 e 15 para parecer real
-                    double mediaSimulada = 5 + (Math.random() * 10);
-                    System.out.println("\n--- ESTATÍSTICA (PREVISÃO) ---");
-                    System.out.printf("Média diária de utentes atendidos: %.1f utentes/dia\n", mediaSimulada);
-                    System.out.println("(Nota: Cálculo real será implementado pelo Aluno 2)");
-                    pausar();
+                    exibirMediaAtendidos();
                     break;
                 case 2:
-                    // SIMULAÇÃO: Mostra dados estáticos
-                    System.out.println("\n--- TOP 3 ESPECIALIDADES (DADOS HISTÓRICOS) ---");
-                    System.out.println("1. Cardiologia (45% dos casos)");
-                    System.out.println("2. Pediatria   (30% dos casos)");
-                    System.out.println("3. Ortopedia   (25% dos casos)");
-                    System.out.println("(Nota: Dados em tempo real serão implementados pelo Aluno 2)");
-                    pausar();
+                    exibirAnaliseSintomas();
                     break;
                 case 3:
+                    exibirFolhaSalarial();
+                    break;
+                case 4:
                     System.out.println("--- LOGS DO SISTEMA ---");
                     ficheiros.lerLogs();
                     pausar();
@@ -893,6 +887,39 @@ public class Menu {
                     pausar();
             }
         } while (opcao != 0);
+    }
+
+    /**
+     * Metodo auxiliar para processar e mostrar a média de atendimentos.
+     */
+    private void exibirMediaAtendidos() {
+        limparEcra();
+        System.out.println("=== MÉDIA DE UTENTES ATENDIDOS ===");
+        double media = Estatisticas.calcularMediaDiaria(gestao, relogio.getDiaAtual());
+        System.out.printf("Média atual: %.2f utentes por dia [cite: 301]\n", media);
+        pausar();
+    }
+
+     /**
+    * Metodo auxiliar que lista a frequência de sintomas e permite testar a Regra dos 80%.
+    */
+    private void exibirAnaliseSintomas() {
+        limparEcra();
+        Estatisticas.exibirFrequenciaSintomas(gestao); // Requisito: Tabela de sintomas [cite: 303]
+
+        System.out.println("\n--- Sugestão Inteligente (Regra 80%) ---");
+        String sintomaBusca = lerString("Digite o nome de um sintoma para analisar: ");
+        Estatisticas.verificarRegra80(gestao, sintomaBusca); // Requisito: Sugestão inovadora
+        pausar();
+    }
+
+    /**
+    * Metodo auxiliar para exibir o relatório financeiro dos médicos.
+    */
+    private void exibirFolhaSalarial() {
+        limparEcra();
+        Estatisticas.exibirTabelaSalarios(gestao);
+        pausar();
     }
 
     /**

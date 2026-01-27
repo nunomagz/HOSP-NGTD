@@ -243,6 +243,65 @@ public class Calculos {
         }
     }
 
+    /**
+     * Metodo Mestre: Percorre a fila de espera e atribui médicos aos utentes.
+     * @param utentes Array de utentes na sala de espera
+     * @param nUtentes Número de utentes
+     * @param medicos Array de médicos
+     * @param nMedicos Número de médicos
+     * @param todosSintomas Array de todos os sintomas (necessário para buscar o objeto Sintoma pelo nome)
+     * @param nSintomas Número de sintomas
+     * @param horaAtual A hora atual do sistema
+     */
+    public void processarFilaEspera(Utente[] utentes, int nUtentes,
+                                    Medico[] medicos, int nMedicos,
+                                    Sintoma[] todosSintomas, int nSintomas,
+                                    int horaAtual) {
+
+        System.out.println("--- A processar fila de espera... ---");
+
+        for (int i = 0; i < nUtentes; i++) {
+            Utente u = utentes[i];
+
+            // Ignorar utentes que já foram marcados como atendidos ou transferidos
+            if (u.getNome().contains("[ATENDIDO]") || u.getNome().contains("[TRANSFERIDO]")) {
+                continue;
+            }
+
+            // 1. Precisamos de encontrar o objeto Sintoma correspondente ao nome que o utente tem
+            Sintoma sintomaDoUtente = null;
+            for (int k = 0; k < nSintomas; k++) {
+                if (todosSintomas[k].getNome().equalsIgnoreCase(u.getSintoma())) {
+                    sintomaDoUtente = todosSintomas[k];
+                    break;
+                }
+            }
+
+            if (sintomaDoUtente != null) {
+                // 2. Determinar a especialidade
+                // Criamos um array temporário de 1 posição porque o teu metodo pede um array
+                Sintoma[] temp = { sintomaDoUtente };
+                String especialidade = determinarEspecialidade(temp, 1);
+
+                if (especialidade != null) {
+                    // 3. Tentar encontrar médico
+                    Medico medico = procurarMedicoDisponivel(medicos, nMedicos, especialidade, horaAtual);
+
+                    if (medico != null) {
+                        // 4. SUCESSO: Realizar a atribuição
+                        medico.setDisponivel(false); // O médico fica ocupado
+
+                        // Marcamos o utente (para depois ser removido da sala pelo metodo de limpeza)
+                        System.out.println("✅ ATRIBUIÇÃO: O Dr(a). " + medico.getNome() +
+                                " (" + medico.getEspecialidade() + ") chamou o utente " + u.getNome());
+
+                        u.setNome(u.getNome() + " [ATENDIDO]");
+                    }
+                }
+            }
+        }
+    }
+
     public void processarUtente(Utente u, Medico[] medicos, int nMedicos, Sintoma[] todosSintomas, int nSintomas, int horaAtual) {
         if (u.getNome().contains("[ATENDIDO]") || u.getNome().contains("[TRANSFERIDO]")) return;
 

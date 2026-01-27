@@ -603,7 +603,24 @@ public class Menu {
             medicos[i] = gestao.getMedicoAt(i);
         }
 
-        calculos.atualizarEstadoMedicos(medicos, gestao.getNMedicos(), hora);
+        calculos.atualizarEstadoMedicos(medicos, gestao.getNMedicos(), hora, gestao);
+
+        Modelo.Utente[] utentesFila = new Modelo.Utente[gestao.getNUtentes()];
+        for (int i = 0; i < gestao.getNUtentes(); i++) {
+            utentesFila[i] = gestao.getUtenteAt(i);
+        }
+
+        Modelo.Medico[] medicosAtivos = new Modelo.Medico[gestao.getNMedicos()];
+        for (int i = 0; i < gestao.getNMedicos(); i++) {
+            medicosAtivos[i] = gestao.getMedicoAt(i);
+        }
+
+        Modelo.Sintoma[] catalogoSintomas = new Modelo.Sintoma[gestao.getNSintomas()];
+        for (int i = 0; i < gestao.getNSintomas(); i++) {
+            catalogoSintomas[i] = gestao.getSintomaAt(i);
+        }
+
+        calculos.processarFilaEspera(utentes, gestao.getNUtentes(), medicos, gestao.getNMedicos(), todosSintomas, gestao.getNSintomas(), relogio.getHoraAtual());
 
         // 4. Verificar alterações de urgência nos Utentes (Lógica do Aluno 2)
         boolean houveMudancas = gestao.verificarAlteracoesUrgencia();

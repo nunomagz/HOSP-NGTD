@@ -588,32 +588,12 @@ public class Menu {
         // 3. Processar Turnos dos Médicos (Entradas e Saídas) [NOVO]
         // Percorre todos os médicos registados na gestao
 
-//        calculos.atualizarEstadoMedicos();
-//        for (int i = 0; i < gestao.getNMedicos(); i++) {
-//            Modelo.Medico m = gestao.getMedicoAt(i);
-//
-//            // Verificar Entrada
-//            if (m.getHoraEntrada() == hora) {
-//                m.setDisponivel(true); // Coloca o médico como disponível
-//                registarEvento("O médico " + m.getNome() + " (" + m.getEspecialidade() + ") entrou ao serviço."); // Guarda no ficheiro
-//            }
-//
-//            // Verificar Pausa
-//            m.setHorasSeguidasTrabalhadas(m.getHorasSeguidasTrabalhadas() + 1); // Incrementa as horas seguidas trabalhadas
-//            if (m.getHorasSeguidasTrabalhadas() >= 5 && m.isDisponivel()) {
-//                m.setDisponivel(false); // Medico entra em pausa (1 hora)
-//                registarEvento("O médico " + m.getNome() + " (" + m.getEspecialidade() + ") entrou em pausa obrigatória.");
-//            }
-//
-//
-//            // Verificar Saída
-//            if (m.getHoraSaida() == hora && m.isDisponivel()) {
-//                m.setDisponivel(false); // Retira a disponibilidade
-//                registarEvento("O médico " + m.getNome() + " (" + m.getEspecialidade() + ") saiu do serviço.");
-//            } else {
-//                System.out.println("O médico " + m.getNome() + " (" + m.getEspecialidade() + ") permanece em serviço.");
-//            }
-//        }
+        Modelo.Medico[] medicos = new Modelo.Medico[gestao.getNMedicos()];
+        for (int i = 0; i < gestao.getNMedicos(); i++) {
+            medicos[i] = gestao.getMedicoAt(i);
+        }
+
+        calculos.atualizarEstadoMedicos(medicos, gestao.getNMedicos(), hora);
 
         // 4. Verificar alterações de urgência nos Utentes (Lógica do Aluno 2)
         boolean houveMudancas = gestao.verificarAlteracoesUrgencia();

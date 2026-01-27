@@ -220,10 +220,19 @@ public class Calculos {
                 }
             }
 
+            // Se for altura para o medico tirar uma pausa
+            m.setHorasSeguidasTrabalhadas(m.getHorasSeguidasTrabalhadas() + 1); // Incrementa as horas seguidas trabalhadas
+            if (m.getHorasSeguidasTrabalhadas() >= 5 && m.isDisponivel()) {
+                m.setDisponivel(false); // Medico entra em pausa (1 hora)
+                System.out.println("👨‍⚕️ O Dr(a). " + m.getNome() + " entrou em pausa obrigatoria.");
+            }
+
             // Se for a hora de saída, o médico sai (indisponível)
-            if (m.getHoraSaida() == horaAtual) {
+            if (m.getHoraSaida() == horaAtual && m.isDisponivel()) {
                 m.setDisponivel(false);
                 System.out.println("🚪 O Dr(a). " + m.getNome() + " terminou o turno.");
+            } else {
+                System.out.println("O médico " + m.getNome() + " (" + m.getEspecialidade() + ") permanece em serviço.");
             }
         }
     }

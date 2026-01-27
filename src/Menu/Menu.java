@@ -6,7 +6,7 @@ import Gestao.GestaoHOSP;
 import Modelo.Hospital;
 import Modelo.RelogioHospital;
 import Modelo.Utente;
-
+import Controlador.Calculos;
 import java.io.File;
 import java.io.IOException;
 import java.util.Scanner;
@@ -17,6 +17,7 @@ public class Menu {
     private Hospital hospital;
     private Scanner scanner;
     private RelogioHospital relogio;
+    private Calculos calculos;
 
 
     public Menu() {
@@ -25,6 +26,7 @@ public class Menu {
         this.hospital = new Hospital();
         this.scanner = new Scanner(System.in);
         this.relogio = new RelogioHospital();
+        this.calculos = new Calculos();
     }
 
     public void iniciar(){
@@ -585,31 +587,33 @@ public class Menu {
 
         // 3. Processar Turnos dos Médicos (Entradas e Saídas) [NOVO]
         // Percorre todos os médicos registados na gestao
-        for (int i = 0; i < gestao.getNMedicos(); i++) {
-            Modelo.Medico m = gestao.getMedicoAt(i);
 
-            // Verificar Entrada
-            if (m.getHoraEntrada() == hora) {
-                m.setDisponivel(true); // Coloca o médico como disponível
-                registarEvento("O médico " + m.getNome() + " (" + m.getEspecialidade() + ") entrou ao serviço."); // Guarda no ficheiro
-            }
-
-            // Verificar Pausa
-            m.setHorasSeguidasTrabalhadas(m.getHorasSeguidasTrabalhadas() + 1); // Incrementa as horas seguidas trabalhadas
-            if (m.getHorasSeguidasTrabalhadas() >= 5 && m.isDisponivel()) {
-                m.setDisponivel(false); // Medico entra em pausa (1 hora)
-                registarEvento("O médico " + m.getNome() + " (" + m.getEspecialidade() + ") entrou em pausa obrigatória.");
-            }
-
-
-            // Verificar Saída
-            if (m.getHoraSaida() == hora && m.isDisponivel()) {
-                m.setDisponivel(false); // Retira a disponibilidade
-                registarEvento("O médico " + m.getNome() + " (" + m.getEspecialidade() + ") saiu do serviço.");
-            } else {
-                System.out.println("O médico " + m.getNome() + " (" + m.getEspecialidade() + ") permanece em serviço.");
-            }
-        }
+//        calculos.atualizarEstadoMedicos();
+//        for (int i = 0; i < gestao.getNMedicos(); i++) {
+//            Modelo.Medico m = gestao.getMedicoAt(i);
+//
+//            // Verificar Entrada
+//            if (m.getHoraEntrada() == hora) {
+//                m.setDisponivel(true); // Coloca o médico como disponível
+//                registarEvento("O médico " + m.getNome() + " (" + m.getEspecialidade() + ") entrou ao serviço."); // Guarda no ficheiro
+//            }
+//
+//            // Verificar Pausa
+//            m.setHorasSeguidasTrabalhadas(m.getHorasSeguidasTrabalhadas() + 1); // Incrementa as horas seguidas trabalhadas
+//            if (m.getHorasSeguidasTrabalhadas() >= 5 && m.isDisponivel()) {
+//                m.setDisponivel(false); // Medico entra em pausa (1 hora)
+//                registarEvento("O médico " + m.getNome() + " (" + m.getEspecialidade() + ") entrou em pausa obrigatória.");
+//            }
+//
+//
+//            // Verificar Saída
+//            if (m.getHoraSaida() == hora && m.isDisponivel()) {
+//                m.setDisponivel(false); // Retira a disponibilidade
+//                registarEvento("O médico " + m.getNome() + " (" + m.getEspecialidade() + ") saiu do serviço.");
+//            } else {
+//                System.out.println("O médico " + m.getNome() + " (" + m.getEspecialidade() + ") permanece em serviço.");
+//            }
+//        }
 
         // 4. Verificar alterações de urgência nos Utentes (Lógica do Aluno 2)
         boolean houveMudancas = gestao.verificarAlteracoesUrgencia();
@@ -761,39 +765,49 @@ public class Menu {
         System.out.println("Sintoma: " + u.getSintoma() + " | Urgência: " + u.getNivelUrgencia());
         System.out.println("--------------------------------------------------");
 
-        // 2. Procurar o sintoma para saber quais as especialidades permitidas
-        String[] especialidadesPermitidas = null;
+
+        // 2. Encontrar o objeto Sintoma correspondente ao nome guardado no utente
+        Modelo.Sintoma sintomaDoUtente = null;
         for (int i = 0; i < gestao.getNSintomas(); i++) {
             Modelo.Sintoma s = gestao.getSintomaAt(i);
             if (s != null && s.getNome().equalsIgnoreCase(u.getSintoma())) {
-                // Aqui guardamos o ARRAY de códigos
-                especialidadesPermitidas = s.getCodigoEspecialidade();
+                sintomaDoUtente = s;
                 break;
             }
         }
 
-        if (especialidadesPermitidas == null) {
-            System.out.println("Erro: Sintoma não encontrado no sistema.");
+        if (sintomaDoUtente == null) {
+            System.out.println("Erro: Sintoma do utente não encontrado no sistema.");
             return;
         }
 
-        // 3. Procurar um médico que tenha UMA das especialidades permitidas
-        Modelo.Medico medicoEncontrado = null;
+        // 3. Usar Calculos.determinarEspecialidade para decidir a especialidade certa
+        Modelo.Sintoma[] sintomasUtente = { sintomaDoUtente };   // array de 1 posição
+        String especialidadeEscolhida = Calculos.determinarEspecialidade(sintomasUtente, 1);
 
-        for (int i = 0; i < gestao.getNMedicos(); i++) {
-            Modelo.Medico m = gestao.getMedicoAt(i);
-
-            if (m != null && m.isDisponivel()) {
-                // Como o sintoma tem várias especialidades, temos de ver se a do médico está lá
-                for (String codEsp : especialidadesPermitidas) {
-                    if (m.getEspecialidade().equalsIgnoreCase(codEsp)) {
-                        medicoEncontrado = m;
-                        break;
-                    }
-                }
-            }
-            if (medicoEncontrado != null) break;
+        if (especialidadeEscolhida == null) {
+            System.out.println("Não foi possível determinar uma especialidade para este sintoma.");
+            return;
         }
+
+        System.out.println("Especialidade sugerida: " + especialidadeEscolhida);
+
+        // construir um array temporário com todos os médicos
+        Modelo.Medico[] medicos = new Modelo.Medico[gestao.getNMedicos()];
+        for (int i = 0; i < gestao.getNMedicos(); i++) {
+            medicos[i] = gestao.getMedicoAt(i);
+        }
+
+        // 4. Usar Calculos.procurarMedicoDisponivel para encontrar médico compatível
+        int horaAtual = relogio.getHoraAtual();
+        Modelo.Medico medicoEncontrado =
+                calculos.procurarMedicoDisponivel(
+                        medicos,           // assumes existe getMedicos()
+                        gestao.getNMedicos(),
+                        especialidadeEscolhida,
+                        horaAtual
+                );
+
 
         // 4. Se não encontrar nenhum médico
         if (medicoEncontrado == null) {

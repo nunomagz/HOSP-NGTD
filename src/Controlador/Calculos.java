@@ -296,4 +296,47 @@ public class Calculos {
             }
         }
     }
+
+    public void processarUtente(Utente u, Medico[] medicos, int nMedicos, Sintoma[] todosSintomas, int nSintomas, int horaAtual) {
+
+        // Ignorar utentes que já foram atendidos ou transferidos
+        if (u.getNome().contains("[ATENDIDO]") || u.getNome().contains("[TRANSFERIDO]")) {
+            return;
+        }
+
+        // 1. Encontrar o objeto Sintoma correspondente ao nome no utente
+        Sintoma sintomaDoUtente = null;
+        for (int k = 0; k < nSintomas; k++) {
+            if (todosSintomas[k].getNome().equalsIgnoreCase(u.getSintoma())) {
+                sintomaDoUtente = todosSintomas[k];
+                break;
+            }
+        }
+
+        if (sintomaDoUtente == null) {
+            // não encontramos o sintoma -> não dá para encaminhar
+            return;
+        }
+
+        // 2. Determinar a especialidade (reutilizando o teu metodo)
+        Sintoma[] temp = { sintomaDoUtente };   // array de 1 posição
+        String especialidade = determinarEspecialidade(temp, 1);
+
+        if (especialidade == null) {
+            // não foi possível escolher especialidade
+            return;
+        }
+
+        // 3. Tentar encontrar médico disponível
+        Medico medico = procurarMedicoDisponivel(medicos, nMedicos, especialidade, horaAtual);
+
+        if (medico != null) {
+            // 4. SUCESSO: atribuir
+            medico.setDisponivel(false); // médico fica ocupado
+            System.out.println("✅ ATRIBUIÇÃO: O Dr(a). " + medico.getNome() +
+                    " (" + medico.getEspecialidade() + ") chamou o utente " + u.getNome());
+            u.setNome(u.getNome() + " [ATENDIDO]");
+        }
+    }
+
 }

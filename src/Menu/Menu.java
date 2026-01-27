@@ -727,6 +727,31 @@ public class Menu {
         // 5. Escrever no Log (Requisito obrigatório)
         registarEvento("Triagem: Utente " + u.getNome() + " (Nº" + u.getNumero() +
                 ") classificado com urgência " + u.getNivelUrgencia().toUpperCase());
+
+        Modelo.Medico[] medicos = new Modelo.Medico[gestao.getNMedicos()];
+        for (int i = 0; i < gestao.getNMedicos(); i++) {
+            medicos[i] = gestao.getMedicoAt(i);
+        }
+
+        Modelo.Sintoma[] todosSintomas = new Modelo.Sintoma[gestao.getNSintomas()];
+        for (int i = 0; i < gestao.getNSintomas(); i++) {
+            todosSintomas[i] = gestao.getSintomaAt(i);
+        }
+
+        int horaAtual = relogio.getHoraAtual();
+
+        System.out.println("Pretende enviar o utente para o médico agora? ");
+        String resp = lerString("Responder (S/N): ");
+        if (resp.equalsIgnoreCase("S")) {
+            // chamar o metodo “de 1 utente”
+            calculos.processarUtente(u,
+                    medicos, gestao.getNMedicos(),
+                    todosSintomas, gestao.getNSintomas(),
+                    horaAtual);
+        } else {
+            System.out.println("Utente enviado para sala de espera.");
+        }
+
     }
 
     private void encaminharMedico(Utente u) {

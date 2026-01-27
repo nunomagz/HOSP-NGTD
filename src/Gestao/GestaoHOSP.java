@@ -465,7 +465,41 @@ public class GestaoHOSP {
         }
     }
 
+    /**
+     * Verifica se existem utentes marcados como [TRANSFERIDO] na sala de espera.
+     * Se houver, move-os para o histórico e remove-os da sala de espera.
+     */
+    public void processarTransferencias() {
+        // Percorremos de trás para a frente para o shift do array não saltar elementos
+        for (int i = nUtentes - 1; i >= 0; i--) {
+            Utente u = utentes[i];
 
+            if (u.getNome().contains("[TRANSFERIDO]")) {
+                // 1. Adicionar ao histórico (útil para as estatísticas de média de atendidos)
+                adicionarAoHistorico(u);
+
+                // 2. Remover da sala de espera
+                removerUtentePorIndice(i);
+            }
+        }
+    }
+
+    private void adicionarAoHistorico(Utente u) {
+        if (nHistorico >= historicoUtentes.length) {
+            Utente[] novo = new Utente[historicoUtentes.length * 2];
+            for(int k=0; k<historicoUtentes.length; k++) novo[k] = historicoUtentes[k];
+            historicoUtentes = novo;
+        }
+        historicoUtentes[nHistorico++] = u;
+    }
+
+    private void removerUtentePorIndice(int indice) {
+        for (int i = indice; i < nUtentes - 1; i++) {
+            utentes[i] = utentes[i + 1];
+        }
+        utentes[nUtentes - 1] = null;
+        nUtentes--;
+    }
     // Helpers
 
     private boolean vazio(String s) {

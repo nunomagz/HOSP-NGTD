@@ -1,6 +1,7 @@
 package Controlador;
 
 import Configuracoes.Configuracoes;
+import Gestao.GestaoHOSP;
 import Modelo.Medico;
 import Modelo.NivelUrgencia;
 import Modelo.Sintoma;
@@ -162,17 +163,19 @@ public class Calculos {
      * @return O objeto Medico se encontrar, ou null se ninguém puder atender.
      */
     public Medico procurarMedicoDisponivel(Medico[] medicos, int nMedicos, String especialidadeAlvo, int horaAtual) {
-        // 1ª Passagem: Tenta encontrar alguém da mesma especialidade
-        for (int i = 0; i < nMedicos; i++) {
-            Medico m = medicos[i];
-            if (m.isDisponivel() && m.getEspecialidade().equalsIgnoreCase(especialidadeAlvo)) {
-                if (horaAtual >= m.getHoraEntrada() && horaAtual < m.getHoraSaida()) {
-                    return m;
+        // 1ª Passagem: Tenta encontrar alguém da mesma especialidade (apenas se a especialidade for conhecida)
+        if (especialidadeAlvo != null) {
+            for (int i = 0; i < nMedicos; i++) {
+                Medico m = medicos[i];
+                if (m.isDisponivel() && m.getEspecialidade().equalsIgnoreCase(especialidadeAlvo)) {
+                    if (horaAtual >= m.getHoraEntrada() && horaAtual < m.getHoraSaida()) {
+                        return m;
+                    }
                 }
             }
         }
 
-        // 2ª Passagem: Se não encontrou, tenta qualquer médico disponível no turno
+        // 2ª Passagem: Se não encontrou especialista OU se o utente não tem especialidade definida,
         for (int i = 0; i < nMedicos; i++) {
             Medico m = medicos[i];
             if (m.isDisponivel() && horaAtual >= m.getHoraEntrada() && horaAtual < m.getHoraSaida()) {
@@ -189,42 +192,53 @@ public class Calculos {
      * @param nMedicos Quantidade de médicos
      * @param horaAtual A hora atual
      */
-    public void atualizarEstadoMedicos(Medico[] medicos, int nMedicos, int horaAtual) {
-        int limiteTrabalho = Configuracoes.getHorasTrabalhoParaDescanso();
-
+    public void atualizarEstadoMedicos(Medico[] medicos, int nMedicos, int horaAtual, GestaoHOSP gestao) {
         for (int i = 0; i < nMedicos; i++) {
             Medico m = medicos[i];
-            m.decrementarTempoOcupado();
 
-            // 1. Gestão de Entrada no Turno
+            // 1. Decrementar tempo de consulta e dar alta
+            if (m.getTempoOcupadoRestante() > 0) {
+                m.decrementarTempoOcupado();
+
+                if (m.getTempoOcupadoRestante() == 0 && m.getUtenteEmConsulta() != null) {
+                    Utente u = m.getUtenteEmConsulta();
+                    System.out.println("🏁 ALTA: O utente " + u.getNome() + " terminou a consulta com Dr. " + m.getNome());
+
+                    // Mover para o histórico e remover da sala de espera
+                    gestao.adicionarAoHistorico(u);
+                    gestao.removerUtente(u.getNumero());
+                    m.finalizarConsulta();
+                }
+            }
+
+            // 2. Lógica de Entrada no Turno
             if (m.getHoraEntrada() == horaAtual && !m.isDisponivel()) {
                 m.setDisponivel(true);
                 m.setHorasSeguidasTrabalhadas(0);
-                System.out.println("👨‍⚕️ O Dr(a). " + m.getNome() + " iniciou o turno.");
-                continue;
+                System.out.println("👨‍⚕️ Dr. " + m.getNome() + " iniciou o turno.");
             }
 
-            // 2. Gestão de Pausa e Cansaço
-            if (m.isDisponivel()) {
-                m.setHorasSeguidasTrabalhadas(m.getHorasSeguidasTrabalhadas() + 1);
+            // 3. Lógica de Saída do Turno (Respeita o serviço em curso )
+            if (horaAtual >= m.getHoraSaida()) {
+                if (m.getTempoOcupadoRestante() == 0) {
+                    if (m.isDisponivel()) {
+                        m.setDisponivel(false);
+                        System.out.println("🚪 Dr. " + m.getNome() + " terminou o turno e saiu do hospital.");
+                    }
+                } else {
+                    // Notificação de que o médico está a fazer "horas extra" para acabar o serviço
+                    System.out.println("⏳ Dr. " + m.getNome() + " aguarda fim da consulta para sair (Turno encerrado).");
+                }
+            }
 
-                if (m.getHorasSeguidasTrabalhadas() >= limiteTrabalho) {
+            // 4. Pausas (Resetar contador após a pausa)
+            if (m.isDisponivel() && m.getTempoOcupadoRestante() == 0) {
+                m.setHorasSeguidasTrabalhadas(m.getHorasSeguidasTrabalhadas() + 1);
+                if (m.getHorasSeguidasTrabalhadas() >= 5) {
                     m.setDisponivel(false);
                     m.setHorasSeguidasTrabalhadas(0);
-                    System.out.println("☕ O Dr(a). " + m.getNome() + " entrou em pausa obrigatória (atingiu " + limiteTrabalho + "h).");
+                    System.out.println("☕ Dr. " + m.getNome() + " entrou em pausa obrigatória.");
                 }
-            } else if (horaAtual > m.getHoraEntrada() && horaAtual < m.getHoraSaida()) {
-                m.setDisponivel(true);
-                System.out.println("✅ O Dr(a). " + m.getNome() + " terminou a pausa e voltou ao serviço.");
-            }
-
-            // 3. Gestão de Saída do Turno
-            if (m.getHoraSaida() == horaAtual) {
-                m.setDisponivel(false);
-                m.setHorasSeguidasTrabalhadas(0);
-                System.out.println("🚪 O Dr(a). " + m.getNome() + " terminou o turno.");
-            } else  if (m.isDisponivel()){
-                System.out.println("O médico " + m.getNome() + " (" + m.getEspecialidade() + ") permanece em serviço.");
             }
         }
     }
@@ -232,6 +246,7 @@ public class Calculos {
     public void processarUtente(Utente u, Medico[] medicos, int nMedicos, Sintoma[] todosSintomas, int nSintomas, int horaAtual) {
         if (u.getNome().contains("[ATENDIDO]") || u.getNome().contains("[TRANSFERIDO]")) return;
 
+        // 1. Tentar encontrar o sintoma
         Sintoma sintomaDoUtente = null;
         for (int k = 0; k < nSintomas; k++) {
             if (todosSintomas[k].getNome().equalsIgnoreCase(u.getSintoma())) {
@@ -240,23 +255,33 @@ public class Calculos {
             }
         }
 
-        if (sintomaDoUtente == null) return;
+        // 2. Tentar determinar a especialidade (pode resultar em null)
+        String especialidadeNecessaria = null;
+        if (sintomaDoUtente != null) {
+            Sintoma[] temp = { sintomaDoUtente };
+            especialidadeNecessaria = determinarEspecialidade(temp, 1);
+        }
 
-        Sintoma[] temp = { sintomaDoUtente };
-        String especialidadeNecessaria = determinarEspecialidade(temp, 1);
-
+        // 3. Procurar médico (mesmo que especialidadeNecessaria seja null)
         Medico medico = procurarMedicoDisponivel(medicos, nMedicos, especialidadeNecessaria, horaAtual);
 
         if (medico != null) {
-            // Define o tempo de atendimento
-            int tempoDeCura = medico.getEspecialidade().equalsIgnoreCase(especialidadeNecessaria) ? 1 : 2;
+            // Regra de tempo: 1 un. para especialista, 2 un. para atendimento geral
+            int tempoDeCura = 2; // Valor padrão (Clínica Geral)
+            if (especialidadeNecessaria != null && medico.getEspecialidade().equalsIgnoreCase(especialidadeNecessaria)) {
+                tempoDeCura = 1; // Especialista
+            }
 
             medico.setDisponivel(false);
             medico.setTempoOcupadoRestante(tempoDeCura);
+            u.setEspecialidadeAtendimento(medico.getEspecialidade());
+            medico.setUtenteEmConsulta(u); // Vincula o utente ao médico
 
             System.out.println("✅ ATRIBUIÇÃO: Dr. " + medico.getNome() + " atende " + u.getNome() +
                     " (Tempo: " + tempoDeCura + " un.)");
             u.setNome(u.getNome() + " [ATENDIDO]");
+        } else {
+            System.out.println("⏳ Ninguém disponível para atender " + u.getNome() + " no momento.");
         }
     }
 

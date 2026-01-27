@@ -505,7 +505,7 @@ public class GestaoHOSP {
         }
     }
 
-    private void adicionarAoHistorico(Utente u) {
+    public void adicionarAoHistorico(Utente u) {
         if (nHistorico >= historicoUtentes.length) {
             Utente[] novo = new Utente[historicoUtentes.length * 2];
             for(int k=0; k<historicoUtentes.length; k++) novo[k] = historicoUtentes[k];

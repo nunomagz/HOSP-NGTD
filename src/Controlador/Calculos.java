@@ -1,6 +1,7 @@
 package Controlador;
 
 import Configuracoes.Configuracoes;
+import Modelo.Medico;
 import Modelo.NivelUrgencia;
 import Modelo.Sintoma;
 import Modelo.Utente;
@@ -160,5 +161,130 @@ public class Calculos {
             }
         }
         return houveAlteracao;
+    }
+
+    /**
+     * Procura um médico que tenha a especialidade certa, esteja no turno e esteja livre.
+     * Requisito: "atribuir médicos consoante as especialidades"[cite: 23].
+     *
+     * @param medicos Array de médicos
+     * @param nMedicos Quantidade de médicos
+     * @param especialidadeAlvo A especialidade necessária (ex: "CARD")
+     * @param horaAtual A hora atual do relógio
+     * @return O objeto Medico se encontrar, ou null se ninguém puder atender.
+     */
+    public Medico procurarMedicoDisponivel(Medico[] medicos, int nMedicos, String especialidadeAlvo, int horaAtual) {
+        if (especialidadeAlvo == null || medicos == null) {
+            return null;
+        }
+
+        for (int i = 0; i < nMedicos; i++) {
+            Medico m = medicos[i];
+
+            // 1. Verifica se a especialidade corresponde
+            if (m.getEspecialidade().equalsIgnoreCase(especialidadeAlvo)) {
+
+                // 2. Verifica se está dentro do horário de trabalho
+                // Regra: O médico está disponível se (Hora >= Entrada) E (Hora < Saída)
+                // Exemplo: Entra às 8, sai às 16. Às 15h atende, às 16h já não.
+                if (horaAtual >= m.getHoraEntrada() && horaAtual < m.getHoraSaida()) {
+
+                    // 3. Verifica se está efetivamente livre (não está a atender ninguém)
+                    if (m.isDisponivel()) {
+                        return m;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Atualiza o estado dos médicos com base na hora atual.
+     * Serve para simular a entrada e saída de turno.
+     *
+     * @param medicos Array de médicos
+     * @param nMedicos Quantidade de médicos
+     * @param horaAtual A hora atual
+     */
+    public void atualizarEstadoMedicos(Medico[] medicos, int nMedicos, int horaAtual) {
+        for (int i = 0; i < nMedicos; i++) {
+            Medico m = medicos[i];
+
+            // Se for a hora de entrada, o médico fica disponível
+            if (m.getHoraEntrada() == horaAtual) {
+                // Só marcamos disponível se ele não estiver marcado (para evitar bugs de estado)
+                if (!m.isDisponivel()) {
+                    m.setDisponivel(true);
+                    System.out.println("👨‍⚕️ O Dr(a). " + m.getNome() + " iniciou o turno.");
+                }
+            }
+
+            // Se for a hora de saída, o médico sai (indisponível)
+            if (m.getHoraSaida() == horaAtual) {
+                m.setDisponivel(false);
+                System.out.println("🚪 O Dr(a). " + m.getNome() + " terminou o turno.");
+            }
+        }
+    }
+
+    /**
+     * Metodo Mestre: Percorre a fila de espera e atribui médicos aos utentes.
+     *
+     * @param utentes Array de utentes na sala de espera
+     * @param nUtentes Número de utentes
+     * @param medicos Array de médicos
+     * @param nMedicos Número de médicos
+     * @param todosSintomas Array de todos os sintomas (necessário para buscar o objeto Sintoma pelo nome)
+     * @param nSintomas Número de sintomas
+     * @param horaAtual A hora atual do sistema
+     */
+    public void processarFilaEspera(Utente[] utentes, int nUtentes,
+                                    Medico[] medicos, int nMedicos,
+                                    Sintoma[] todosSintomas, int nSintomas,
+                                    int horaAtual) {
+
+        System.out.println("--- A processar fila de espera... ---");
+
+        for (int i = 0; i < nUtentes; i++) {
+            Utente u = utentes[i];
+
+            // Ignorar utentes que já foram marcados como atendidos ou transferidos
+            if (u.getNome().contains("[ATENDIDO]") || u.getNome().contains("[TRANSFERIDO]")) {
+                continue;
+            }
+
+            // 1. Precisamos de encontrar o objeto Sintoma correspondente ao nome que o utente tem
+            Sintoma sintomaDoUtente = null;
+            for (int k = 0; k < nSintomas; k++) {
+                if (todosSintomas[k].getNome().equalsIgnoreCase(u.getSintoma())) {
+                    sintomaDoUtente = todosSintomas[k];
+                    break;
+                }
+            }
+
+            if (sintomaDoUtente != null) {
+                // 2. Determinar a especialidade
+                // Criamos um array temporário de 1 posição porque o teu metodo pede um array
+                Sintoma[] temp = { sintomaDoUtente };
+                String especialidade = determinarEspecialidade(temp, 1);
+
+                if (especialidade != null) {
+                    // 3. Tentar encontrar médico
+                    Medico medico = procurarMedicoDisponivel(medicos, nMedicos, especialidade, horaAtual);
+
+                    if (medico != null) {
+                        // 4. SUCESSO: Realizar a atribuição
+                        medico.setDisponivel(false); // O médico fica ocupado
+
+                        // Marcamos o utente (para depois ser removido da sala pelo metodo de limpeza)
+                        System.out.println("✅ ATRIBUIÇÃO: O Dr(a). " + medico.getNome() +
+                                " (" + medico.getEspecialidade() + ") chamou o utente " + u.getNome());
+
+                        u.setNome(u.getNome() + " [ATENDIDO]");
+                    }
+                }
+            }
+        }
     }
 }

@@ -220,10 +220,19 @@ public class Calculos {
                 }
             }
 
+            // Se for altura para o medico tirar uma pausa
+            m.setHorasSeguidasTrabalhadas(m.getHorasSeguidasTrabalhadas() + 1); // Incrementa as horas seguidas trabalhadas
+            if (m.getHorasSeguidasTrabalhadas() >= 5 && m.isDisponivel()) {
+                m.setDisponivel(false); // Medico entra em pausa (1 hora)
+                System.out.println("👨‍⚕️ O Dr(a). " + m.getNome() + " entrou em pausa obrigatoria.");
+            }
+
             // Se for a hora de saída, o médico sai (indisponível)
-            if (m.getHoraSaida() == horaAtual) {
+            if (m.getHoraSaida() == horaAtual && m.isDisponivel()) {
                 m.setDisponivel(false);
                 System.out.println("🚪 O Dr(a). " + m.getNome() + " terminou o turno.");
+            } else {
+                System.out.println("O médico " + m.getNome() + " (" + m.getEspecialidade() + ") permanece em serviço.");
             }
         }
     }
@@ -287,4 +296,47 @@ public class Calculos {
             }
         }
     }
+
+    public void processarUtente(Utente u, Medico[] medicos, int nMedicos, Sintoma[] todosSintomas, int nSintomas, int horaAtual) {
+
+        // Ignorar utentes que já foram atendidos ou transferidos
+        if (u.getNome().contains("[ATENDIDO]") || u.getNome().contains("[TRANSFERIDO]")) {
+            return;
+        }
+
+        // 1. Encontrar o objeto Sintoma correspondente ao nome no utente
+        Sintoma sintomaDoUtente = null;
+        for (int k = 0; k < nSintomas; k++) {
+            if (todosSintomas[k].getNome().equalsIgnoreCase(u.getSintoma())) {
+                sintomaDoUtente = todosSintomas[k];
+                break;
+            }
+        }
+
+        if (sintomaDoUtente == null) {
+            // não encontramos o sintoma -> não dá para encaminhar
+            return;
+        }
+
+        // 2. Determinar a especialidade (reutilizando o teu metodo)
+        Sintoma[] temp = { sintomaDoUtente };   // array de 1 posição
+        String especialidade = determinarEspecialidade(temp, 1);
+
+        if (especialidade == null) {
+            // não foi possível escolher especialidade
+            return;
+        }
+
+        // 3. Tentar encontrar médico disponível
+        Medico medico = procurarMedicoDisponivel(medicos, nMedicos, especialidade, horaAtual);
+
+        if (medico != null) {
+            // 4. SUCESSO: atribuir
+            medico.setDisponivel(false); // médico fica ocupado
+            System.out.println("✅ ATRIBUIÇÃO: O Dr(a). " + medico.getNome() +
+                    " (" + medico.getEspecialidade() + ") chamou o utente " + u.getNome());
+            u.setNome(u.getNome() + " [ATENDIDO]");
+        }
+    }
+
 }

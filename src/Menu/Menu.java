@@ -868,12 +868,15 @@ public class Menu {
             switch (opcao) {
                 case 1:
                     exibirMediaAtendidos();
+                    pausar();
                     break;
                 case 2:
                     exibirAnaliseSintomas();
+                    pausar();
                     break;
                 case 3:
                     exibirFolhaSalarial();
+                    pausar();
                     break;
                 case 4:
                     System.out.println("--- LOGS DO SISTEMA ---");
